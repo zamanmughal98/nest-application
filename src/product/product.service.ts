@@ -20,7 +20,6 @@ export class productService {
   ) {}
 
   async getProduct() {
-    console.log('get product service reached');
     const allproducts = await this.ProductModel.find({ deletedAt: '' });
     console.log({ allproducts });
     return allproducts;
