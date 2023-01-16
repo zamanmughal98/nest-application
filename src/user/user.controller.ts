@@ -7,8 +7,10 @@ import {
   Post,
   Put,
   Query,
+  Headers,
 } from '@nestjs/common';
 import { isString } from 'lodash';
+import { authenticateToken } from 'src/utils/authentication';
 import { SendResponse } from 'src/utils/common';
 import * as validator from 'validator';
 import { userServices } from './user.service';
@@ -17,19 +19,9 @@ import { userServices } from './user.service';
 export class userController {
   constructor(private readonly userServices: userServices) {}
 
-  @Post('/login')
-  userLogin() {
-    return this.userServices.userLogin();
-  }
-
-  @Post('/signup')
-  userSignup() {
-    return this.userServices.userSignup();
-  }
-
   @Get('/me')
-  getCrrentUser() {
-    return this.userServices.getCrrentUser();
+  getCrrentUser(@Headers('authorization') bearerToken: string) {
+    return this.userServices.getCrrentUser(authenticateToken(bearerToken));
   }
 
   @Get()
@@ -40,7 +32,7 @@ export class userController {
   @Get('/:userId')
   getUserById(@Param('userId') userId: string) {
     if (validator.isEmpty(userId) || !isString(userId))
-      throw new Error(SendResponse.INVALID_USER_ID);
+      return SendResponse.INVALID_USER_ID;
 
     return this.userServices.getUserById(userId);
   }
@@ -56,12 +48,16 @@ export class userController {
   ) {
     if (validator.isEmpty(userId) || !isString(userId))
       return SendResponse.INVALID_USER_ID;
+
     if (validator.isEmpty(name) || !isString(name))
       return SendResponse.INVALID_USER_NAME;
+
     if (validator.isEmpty(address) || !isString(address))
       return SendResponse.INVALID_USER_ADDRESS;
+
     if (validator.isEmpty(oldPassword) || !isString(oldPassword))
       return SendResponse.INVALID_USER_OLD_PASSWORD;
+
     if (validator.isEmpty(newPassword) || !isString(newPassword))
       return SendResponse.INVALID_USER_NEW_PASSWORD;
 
@@ -80,8 +76,9 @@ export class userController {
   ) {
     if (validator.isEmpty(password) || !isString(password))
       return SendResponse.INVALID_USER_PASSWORD;
+
     if (validator.isEmpty(userId) || !isString(userId))
-      throw new Error(SendResponse.INVALID_USER_ID);
+      return SendResponse.INVALID_USER_ID;
 
     return this.userServices.deleteUser(userId, password);
   }

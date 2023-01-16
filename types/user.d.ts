@@ -12,7 +12,7 @@ interface IUser {
 interface IUserSchmema {
   name: string;
   email: string;
-  password: string;
+  password?: string;
   address?: string;
   createdAt?: string;
   updatedAt?: string;

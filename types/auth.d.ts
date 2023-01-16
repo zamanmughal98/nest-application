@@ -11,9 +11,6 @@ interface ISignup {
 interface ILoginData extends IValidationMessage {
   accessToken?: string;
 }
-interface ISignupData extends IValidationMessage {
-  data?: IuserSchmema;
-}
 
 interface IToken {
   sessionId: string;
