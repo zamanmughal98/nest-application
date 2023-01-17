@@ -3,6 +3,8 @@ import {
   Controller,
   Delete,
   Get,
+  HttpException,
+  HttpStatus,
   Param,
   Post,
   Put,
@@ -25,7 +27,10 @@ export class productController {
   @Get(':productId')
   getProductById(@Param('productId') productId: string) {
     if (validator.isEmpty(productId) || !isString(productId))
-      return SendResponse.INVALID_PRODUCT_ID;
+      throw new HttpException(
+        SendResponse.INVALID_PRODUCT_ID,
+        HttpStatus.FORBIDDEN,
+      );
 
     return this.productService.getProductById(productId);
   }
@@ -38,15 +43,28 @@ export class productController {
     @Body('price') price: string,
   ) {
     if (validator.isEmpty(name) || !isString(name))
-      return SendResponse.INVALID_PRODUCT_NAME;
+      throw new HttpException(
+        SendResponse.INVALID_PRODUCT_NAME,
+        HttpStatus.FORBIDDEN,
+      );
 
     if (validator.isEmpty(description) || !isString(description))
-      return SendResponse.INVALID_PRODUCT_DESCRIPTION;
+      throw new HttpException(
+        SendResponse.INVALID_PRODUCT_DESCRIPTION,
+        HttpStatus.FORBIDDEN,
+      );
 
     if (validator.isEmpty(productNo) || !isString(productNo))
-      return SendResponse.INVALID_PRODUCT_NO;
+      throw new HttpException(
+        SendResponse.INVALID_PRODUCT_NO,
+        HttpStatus.FORBIDDEN,
+      );
 
-    if (!isNumber(price) || price < 10) return SendResponse.MIN_PRICE_ERROR;
+    if (!isNumber(price) || price < 10)
+      throw new HttpException(
+        SendResponse.MIN_PRICE_ERROR,
+        HttpStatus.FORBIDDEN,
+      );
 
     return this.productService.createProduct({
       name,
@@ -65,15 +83,28 @@ export class productController {
     @Body('price') price: string,
   ) {
     if (validator.isEmpty(productId) || !isString(productId))
-      return SendResponse.INVALID_PRODUCT_ID;
+      throw new HttpException(
+        SendResponse.INVALID_PRODUCT_ID,
+        HttpStatus.FORBIDDEN,
+      );
 
     if (validator.isEmpty(name) || !isString(name))
-      return SendResponse.INVALID_PRODUCT_NAME;
+      throw new HttpException(
+        SendResponse.INVALID_PRODUCT_NAME,
+        HttpStatus.FORBIDDEN,
+      );
 
     if (validator.isEmpty(description) || !isString(description))
-      return SendResponse.INVALID_PRODUCT_DESCRIPTION;
+      throw new HttpException(
+        SendResponse.INVALID_PRODUCT_DESCRIPTION,
+        HttpStatus.FORBIDDEN,
+      );
 
-    if (!isNumber(price) || price < 10) return SendResponse.MIN_PRICE_ERROR;
+    if (!isNumber(price) || price < 10)
+      throw new HttpException(
+        SendResponse.MIN_PRICE_ERROR,
+        HttpStatus.FORBIDDEN,
+      );
 
     return this.productService.updateProduct(productId, {
       name,
@@ -85,7 +116,10 @@ export class productController {
   @Delete(':productId')
   deleteProduct(@Param('productId') productId: string) {
     if (validator.isEmpty(productId) || !isString(productId))
-      return SendResponse.INVALID_PRODUCT_ID;
+      throw new HttpException(
+        SendResponse.INVALID_PRODUCT_ID,
+        HttpStatus.FORBIDDEN,
+      );
 
     return this.productService.deleteProduct(productId);
   }
