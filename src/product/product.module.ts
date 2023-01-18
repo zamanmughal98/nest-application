@@ -3,7 +3,7 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { productSchema } from 'src/mongoDb/schema';
 import { DatabaseNames } from 'src/utils/common';
 import { productController } from './product.controller';
-import { productService } from './product.service';
+import { productServices } from './product.service';
 
 @Module({
   imports: [
@@ -12,6 +12,7 @@ import { productService } from './product.service';
     ]),
   ],
   controllers: [productController],
-  providers: [productService],
+  providers: [productServices],
+  exports: [productServices],
 })
 export class productModule {}

@@ -5,7 +5,7 @@ import { Model } from 'mongoose';
 import { createTimeStamp, DatabaseNames, SendResponse } from 'src/utils/common';
 
 @Injectable()
-export class productService {
+export class productServices {
   constructor(
     @InjectModel(DatabaseNames.PRODUCTS)
     private readonly ProductModel: Model<IProduct>,

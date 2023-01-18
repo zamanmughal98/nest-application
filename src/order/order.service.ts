@@ -2,11 +2,14 @@ import { HttpException, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { ObjectId } from 'mongodb';
 import { Model } from 'mongoose';
+import { productServices } from 'src/product/product.service';
+import { userServices } from 'src/user/user.service';
+
 import {
   createTimeStamp,
   DatabaseNames,
   OrderStatus,
-  SendResponse,
+  SendResponse
 } from 'src/utils/common';
 
 @Injectable()
@@ -14,6 +17,8 @@ export class orderServices {
   constructor(
     @InjectModel(DatabaseNames.ORDERS)
     private readonly OrderModel: Model<IOrder>,
+    private userservices: userServices,
+    private productservices: productServices,
   ) {}
 
   async getOrder(page: string) {
@@ -62,10 +67,66 @@ export class orderServices {
       throw new HttpException(error, 500);
     }
   }
+  calculateProductsPrice = async (data: ProductsArray[]) => {
+    const { Products: allproducts } = await this.productservices.getProduct(
+      '0',
+    );
+
+    return data
+      .map((item) => {
+        const id = new ObjectId(item.id);
+
+        const productDetails: IProduct = allproducts.find(({ _id: PID }) =>
+          PID.equals(id),
+        );
+        if (productDetails) {
+          return {
+            productId: id,
+            name: productDetails.name,
+            price: productDetails.price,
+            quantity: item.quantity,
+            totalPrice: productDetails.price * item.quantity,
+          };
+        }
+        return undefined;
+      })
+      .filter((item) => item !== undefined);
+  };
 
   async createOrder(orderingProduct: ProductsArray[]) {
     try {
-      return orderingProduct;
+      const dbUsers = await this.userservices.getUserById(
+        '63c77c6d82740cc17e12ba80',
+      );
+
+      const productsMapping: IProductMapping[] =
+        await this.calculateProductsPrice(orderingProduct);
+
+      if (productsMapping && productsMapping.length !== 0) {
+        const grandTotal = productsMapping.reduce(
+          (accumulator: number, { totalPrice }) => accumulator + totalPrice,
+          0,
+        );
+
+        const dataToWrite = {
+          User: {
+            userId: new ObjectId('63c77c6d82740cc17e12ba80'),
+            email: 'jamil@gmail.com',
+          },
+          Products: productsMapping,
+          grandTotal,
+          status: OrderStatus.PENDING,
+          createdAt: createTimeStamp(),
+          updatedAt: '',
+          deletedAt: '',
+        };
+
+        const newOrder: IOrderSchema = await this.OrderModel.create(
+          dataToWrite,
+        );
+
+        return newOrder;
+      } else return { message: SendResponse.PRODUCT_NOT_FOUND };
     } catch (error) {
       throw new HttpException(error, 500);
     }

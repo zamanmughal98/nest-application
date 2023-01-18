@@ -8,16 +8,16 @@ import {
   Param,
   Post,
   Put,
-  Query,
+  Query
 } from '@nestjs/common';
 import { isNumber, isString } from 'lodash';
 import { SendResponse } from 'src/utils/common';
 import * as validator from 'validator';
-import { productService } from './product.service';
+import { productServices } from './product.service';
 
 @Controller('/product')
 export class productController {
-  constructor(private readonly productService: productService) {}
+  constructor(private readonly productService: productServices) {}
 
   @Get()
   getProduct(@Query('page') page: string) {
