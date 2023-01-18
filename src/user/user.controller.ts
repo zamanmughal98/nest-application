@@ -4,11 +4,12 @@ import {
   Delete,
   Get,
   Param,
-  Post,
   Put,
   Query,
   Headers,
+  UseGuards,
 } from '@nestjs/common';
+import { AuthGuard } from '@nestjs/passport';
 import { isString } from 'lodash';
 import { authenticateToken } from 'src/utils/authentication';
 import { SendResponse } from 'src/utils/common';
@@ -19,6 +20,7 @@ import { userServices } from './user.service';
 export class userController {
   constructor(private readonly userServices: userServices) {}
 
+  @UseGuards(AuthGuard('jwt'))
   @Get('/me')
   getCrrentUser(@Headers('authorization') bearerToken: string) {
     return this.userServices.getCrrentUser(authenticateToken(bearerToken));

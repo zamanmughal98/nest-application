@@ -10,9 +10,6 @@ export const authenticatePassword = async (
 export const hashPassword = async (password: string) =>
   bcrypt.hash(password, 10);
 
-export const createAccessToken = (payloadData: string | object | Buffer) =>
-  jwt.sign(payloadData, env.ACCESS_TOKEN_SECRET, { expiresIn: '1h' });
-
 export const authenticateToken = (token: string) => {
   const bearer = token.split(' ')[1];
   if (bearer === null || bearer === undefined || bearer.length === 0)

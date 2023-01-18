@@ -10,11 +10,7 @@ export class authController {
   constructor(private readonly authServices: authServices) {}
 
   @Post('/login')
-  userLogin(
-    @Body('email') email: string,
-    @Body('password') password: string,
-   
-  ) {
+  userLogin(@Body('email') email: string, @Body('password') password: string) {
     if (
       validator.isEmpty(email) ||
       !isString(email) ||

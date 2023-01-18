@@ -1,16 +1,14 @@
 import { Injectable } from '@nestjs/common';
+import { JwtService } from '@nestjs/jwt';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import {
-  authenticatePassword,
-  createAccessToken,
-  hashPassword,
-} from 'src/utils/authentication';
+import { authenticatePassword, hashPassword } from 'src/utils/authentication';
 import { createTimeStamp, DatabaseNames, SendResponse } from 'src/utils/common';
 
 @Injectable()
 export class authServices {
   constructor(
+    private jwtService: JwtService,
     @InjectModel(DatabaseNames.USERS) private readonly UserModel: Model<IUser>,
   ) {}
 
@@ -42,8 +40,9 @@ export class authServices {
             deletedAt: userExists.deletedAt,
           };
 
-          const accessToken: string = createAccessToken(accessTokenPayload);
-
+          const accessToken: string = this.jwtService.sign(accessTokenPayload, {
+            expiresIn: '1h',
+          });
           return { accessToken };
         } else return { message: SendResponse.WRONG_PASSWORD };
       } else return { message: SendResponse.USER_NOT_FOUND };
