@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
+import { ConfigModule } from '@nestjs/config';
 import { MongooseModule } from '@nestjs/mongoose';
-import { orderSchema } from 'src/mongoDb/schema';
+import { orderSchema } from 'src/lib/mongoDBSchema';
 import { productModule } from 'src/product/product.module';
 import { userModule } from 'src/user/user.module';
 import { DatabaseNames } from 'src/utils/common';
@@ -9,6 +10,7 @@ import { orderServices } from './order.service';
 
 @Module({
   imports: [
+    ConfigModule.forRoot(),
     userModule,
     productModule,
     MongooseModule.forFeature([

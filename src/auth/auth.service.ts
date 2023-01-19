@@ -43,7 +43,7 @@ export class authServices {
           const accessToken: string = this.jwtService.sign(accessTokenPayload, {
             expiresIn: '1h',
           });
-          return { accessToken };
+          return accessToken;
         } else return { message: SendResponse.WRONG_PASSWORD };
       } else return { message: SendResponse.USER_NOT_FOUND };
     } catch (error) {

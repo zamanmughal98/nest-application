@@ -1,4 +1,4 @@
-import * as  mongoose from 'mongoose';
+import * as mongoose from 'mongoose';
 
 export const jwtStoreSchema = new mongoose.Schema({
   email: { type: String, required: true, lowercase: true, immutable: true },

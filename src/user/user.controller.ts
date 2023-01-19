@@ -3,15 +3,16 @@ import {
   Controller,
   Delete,
   Get,
+  HttpException,
+  HttpStatus,
   Param,
   Put,
   Query,
-  Headers,
-  UseGuards,
+  Request,
+  UseGuards
 } from '@nestjs/common';
-import { AuthGuard } from '@nestjs/passport';
 import { isString } from 'lodash';
-import { authenticateToken } from 'src/utils/authentication';
+import { JwtAuthGuard } from 'src/lib/jwt.guard';
 import { SendResponse } from 'src/utils/common';
 import * as validator from 'validator';
 import { userServices } from './user.service';
@@ -20,25 +21,32 @@ import { userServices } from './user.service';
 export class userController {
   constructor(private readonly userServices: userServices) {}
 
-  @UseGuards(AuthGuard('jwt'))
+  @UseGuards(JwtAuthGuard)
   @Get('/me')
-  getCrrentUser(@Headers('authorization') bearerToken: string) {
-    return this.userServices.getCrrentUser(authenticateToken(bearerToken));
+  getCrrentUser(@Request() request: ICrrentUser) {
+    const { _id: userId } = request.user;
+    return this.userServices.getUserById(userId);
   }
 
+  @UseGuards(JwtAuthGuard)
   @Get()
   getUser(@Query('page') page: string) {
     return this.userServices.getUser(page);
   }
 
+  @UseGuards(JwtAuthGuard)
   @Get('/:userId')
   getUserById(@Param('userId') userId: string) {
     if (validator.isEmpty(userId) || !isString(userId))
-      return SendResponse.INVALID_USER_ID;
+      throw new HttpException(
+        SendResponse.INVALID_USER_ID,
+        HttpStatus.FORBIDDEN,
+      );
 
     return this.userServices.getUserById(userId);
   }
 
+  @UseGuards(JwtAuthGuard)
   @Put('/:userId')
   updateUser(
     @Param('userId') userId: string,
@@ -49,19 +57,34 @@ export class userController {
     @Body('newPassword') newPassword: string,
   ) {
     if (validator.isEmpty(userId) || !isString(userId))
-      return SendResponse.INVALID_USER_ID;
+      throw new HttpException(
+        SendResponse.INVALID_USER_ID,
+        HttpStatus.FORBIDDEN,
+      );
 
     if (validator.isEmpty(name) || !isString(name))
-      return SendResponse.INVALID_USER_NAME;
+      throw new HttpException(
+        SendResponse.INVALID_USER_NAME,
+        HttpStatus.FORBIDDEN,
+      );
 
     if (validator.isEmpty(address) || !isString(address))
-      return SendResponse.INVALID_USER_ADDRESS;
+      throw new HttpException(
+        SendResponse.INVALID_USER_ADDRESS,
+        HttpStatus.FORBIDDEN,
+      );
 
     if (validator.isEmpty(oldPassword) || !isString(oldPassword))
-      return SendResponse.INVALID_USER_OLD_PASSWORD;
+      throw new HttpException(
+        SendResponse.INVALID_USER_OLD_PASSWORD,
+        HttpStatus.FORBIDDEN,
+      );
 
     if (validator.isEmpty(newPassword) || !isString(newPassword))
-      return SendResponse.INVALID_USER_NEW_PASSWORD;
+      throw new HttpException(
+        SendResponse.INVALID_USER_NEW_PASSWORD,
+        HttpStatus.FORBIDDEN,
+      );
 
     return this.userServices.updateUser(userId, {
       name,
@@ -71,16 +94,23 @@ export class userController {
     });
   }
 
+  @UseGuards(JwtAuthGuard)
   @Delete('/:userId')
   deleteUser(
     @Param('userId') userId: string,
     @Body('password') password: string,
   ) {
     if (validator.isEmpty(password) || !isString(password))
-      return SendResponse.INVALID_USER_PASSWORD;
+      throw new HttpException(
+        SendResponse.INVALID_USER_PASSWORD,
+        HttpStatus.FORBIDDEN,
+      );
 
     if (validator.isEmpty(userId) || !isString(userId))
-      return SendResponse.INVALID_USER_ID;
+      throw new HttpException(
+        SendResponse.INVALID_USER_ID,
+        HttpStatus.FORBIDDEN,
+      );
 
     return this.userServices.deleteUser(userId, password);
   }

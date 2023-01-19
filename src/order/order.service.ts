@@ -93,7 +93,10 @@ export class orderServices {
       .filter((item) => item !== undefined);
   };
 
-  async createOrder(orderingProduct: ProductsArray[]) {
+  async createOrder(
+    orderingProduct: ProductsArray[],
+    { userId, email }: { userId: string; email: string },
+  ) {
     try {
       const dbUsers = await this.userservices.getUserById(
         '63c77c6d82740cc17e12ba80',
@@ -110,8 +113,8 @@ export class orderServices {
 
         const dataToWrite = {
           User: {
-            userId: new ObjectId('63c77c6d82740cc17e12ba80'),
-            email: 'jamil@gmail.com',
+            userId: new ObjectId(userId),
+            email,
           },
           Products: productsMapping,
           grandTotal,

@@ -8,9 +8,11 @@ import {
   Param,
   Post,
   Put,
-  Query
+  Query,
+  UseGuards,
 } from '@nestjs/common';
 import { isNumber, isString } from 'lodash';
+import { JwtAuthGuard } from 'src/lib/jwt.guard';
 import { SendResponse } from 'src/utils/common';
 import * as validator from 'validator';
 import { productServices } from './product.service';
@@ -19,6 +21,7 @@ import { productServices } from './product.service';
 export class productController {
   constructor(private readonly productService: productServices) {}
 
+  @UseGuards(JwtAuthGuard)
   @Get()
   getProduct(@Query('page') page: string) {
     return this.productService.getProduct(page);
@@ -35,6 +38,7 @@ export class productController {
     return this.productService.getProductById(productId);
   }
 
+  @UseGuards(JwtAuthGuard)
   @Post()
   createProduct(
     @Body('name') name: string,
@@ -74,6 +78,7 @@ export class productController {
     });
   }
 
+  @UseGuards(JwtAuthGuard)
   @Put(':productId')
   updateProduct(
     @Param('productId') productId: string,
@@ -113,6 +118,7 @@ export class productController {
     });
   }
 
+  @UseGuards(JwtAuthGuard)
   @Delete(':productId')
   deleteProduct(@Param('productId') productId: string) {
     if (validator.isEmpty(productId) || !isString(productId))

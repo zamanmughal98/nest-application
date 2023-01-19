@@ -11,22 +11,6 @@ export class userServices {
     @InjectModel(DatabaseNames.USERS) private readonly UserModel: Model<IUser>,
   ) {}
 
-  async getCrrentUser(user) {
-    try {
-      const userId = user._id;
-      const userExists: IUser = await this.UserModel.findById(
-        { _id: new ObjectId(userId) },
-        { password: 0 },
-      );
-
-      if (userExists && userExists.deletedAt === '') {
-        return userExists;
-      } else return { message: SendResponse.USER_NOT_FOUND };
-    } catch (error) {
-      throw new Error(error.message);
-    }
-  }
-
   async getUser(page: string) {
     try {
       // Pagination

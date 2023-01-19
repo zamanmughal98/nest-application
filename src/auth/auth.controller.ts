@@ -1,5 +1,10 @@
-import { Body, Controller, Post } from '@nestjs/common';
-
+import {
+  Body,
+  Controller,
+  HttpException,
+  HttpStatus,
+  Post,
+} from '@nestjs/common';
 import { isString } from 'lodash';
 import { SendResponse } from 'src/utils/common';
 import * as validator from 'validator';
@@ -16,10 +21,16 @@ export class authController {
       !isString(email) ||
       !validator.isEmail(email)
     )
-      return SendResponse.INVALID_USER_EMAIL;
+      throw new HttpException(
+        SendResponse.INVALID_USER_EMAIL,
+        HttpStatus.FORBIDDEN,
+      );
 
     if (validator.isEmpty(password) || !isString(password))
-      return SendResponse.INVALID_USER_PASSWORD;
+      throw new HttpException(
+        SendResponse.INVALID_USER_PASSWORD,
+        HttpStatus.FORBIDDEN,
+      );
 
     return this.authServices.userLogin({ email, password });
   }
@@ -32,20 +43,32 @@ export class authController {
     @Body('password') password: string,
   ) {
     if (validator.isEmpty(name) || !isString(name))
-      return SendResponse.INVALID_USER_NAME;
+      throw new HttpException(
+        SendResponse.INVALID_USER_NAME,
+        HttpStatus.FORBIDDEN,
+      );
 
     if (validator.isEmpty(address) || !isString(address))
-      return SendResponse.INVALID_USER_ADDRESS;
+      throw new HttpException(
+        SendResponse.INVALID_USER_ADDRESS,
+        HttpStatus.FORBIDDEN,
+      );
 
     if (
       validator.isEmpty(email) ||
       !isString(email) ||
       !validator.isEmail(email)
     )
-      return SendResponse.INVALID_USER_EMAIL;
+      throw new HttpException(
+        SendResponse.INVALID_USER_EMAIL,
+        HttpStatus.FORBIDDEN,
+      );
 
     if (validator.isEmpty(password) || !isString(password))
-      return SendResponse.INVALID_USER_PASSWORD;
+      throw new HttpException(
+        SendResponse.INVALID_USER_PASSWORD,
+        HttpStatus.FORBIDDEN,
+      );
 
     return this.authServices.userSignup({ name, address, email, password });
   }
