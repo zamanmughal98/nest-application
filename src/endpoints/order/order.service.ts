@@ -2,8 +2,8 @@ import { HttpException, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { ObjectId } from 'mongodb';
 import { Model } from 'mongoose';
-import { productServices } from 'src/product/product.service';
-import { userServices } from 'src/user/user.service';
+import { productServices } from 'src/endpoints/product/product.service';
+import { userServices } from 'src/endpoints/user/user.service';
 
 import {
   createTimeStamp,

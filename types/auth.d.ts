@@ -1,13 +1,3 @@
-interface ILogin {
-  email: string;
-  password: string;
-}
-interface ISignup {
-  email: string;
-  password: string;
-  address: string;
-  name: string;
-}
 interface ILoginData extends IValidationMessage {
   accessToken?: string;
 }

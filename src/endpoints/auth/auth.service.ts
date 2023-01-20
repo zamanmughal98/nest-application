@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
+import { loginDto, signupDto } from 'src/dto/auth.dto';
 import { authenticatePassword, hashPassword } from 'src/utils/authentication';
 import { createTimeStamp, DatabaseNames, SendResponse } from 'src/utils/common';
 
@@ -12,9 +13,9 @@ export class authServices {
     @InjectModel(DatabaseNames.USERS) private readonly UserModel: Model<IUser>,
   ) {}
 
-  async userLogin(body: ILogin) {
+  async userLogin(login: loginDto) {
     try {
-      const { email, password } = body;
+      const { email, password } = login;
 
       const userExists: IUser = await this.UserModel.findOne({
         email,
@@ -51,9 +52,9 @@ export class authServices {
     }
   }
 
-  async userSignup(body: ISignup) {
+  async userSignup(signup: signupDto) {
     try {
-      const { name, address, email, password } = body;
+      const { name, address, email, password } = signup;
 
       const userExists: IUser = await this.UserModel.findOne({ email });
       if (!userExists) {

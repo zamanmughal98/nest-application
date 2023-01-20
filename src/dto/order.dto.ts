@@ -1,59 +1,25 @@
-import { ObjectId } from 'mongoose';
-import { messageDto, validationMessageDto } from './common.dto';
-
-export class productMappingDto {
-  productId: ObjectId;
-  name: string;
-  price: number;
-  quantity: number;
-  totalPrice: number;
-}
-export class userMappingDto {
-  userId: ObjectId;
-  email: string;
-}
-
-export class orderDto {
-  User: userMappingDto[];
-  Products: IProductMapping[];
-  grandTotal: number;
-  status: string;
-  createdAt: string;
-  updatedAt: string;
-  deletedAt: string;
-  _id?: ObjectId;
-  __v?: number;
-}
-
-export class orderSchemaDto {
-  User: userMappingDto[];
-  Products: productMappingDto[];
-  grandTotal: number;
-  status: string;
-  createdAt?: string;
-  updatedAt?: string;
-  deletedAt?: string;
-}
-export class postOrderDataDto extends validationMessageDto {
-  data?: orderSchemaDto;
-}
-
-export class getOrdersDataDto extends messageDto {
-  data?: { Pagination?: orderDto[]; Orders?: orderDto[] };
-}
-export class getOrdersDto {
-  page: string;
-}
+import {
+  IsString,
+  IsNotEmpty,
+  ValidateNested,
+  IsNumber,
+} from 'class-validator';
+import { Type } from 'class-transformer';
 
 export class productsArrayDto {
+  @IsString()
+  @IsNotEmpty()
   id: string;
+
+  @IsNumber()
   quantity: number;
 }
-
 export class postOrderDto {
+  @ValidateNested({ each: true })
+  @Type(() => productsArrayDto)
   product: productsArrayDto[];
 }
-
 export class paramOrderIDDto {
+  @IsString()
   orderId: string;
 }

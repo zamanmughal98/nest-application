@@ -1,62 +1,29 @@
-import { ObjectId } from 'mongoose';
-import { messageDto } from './common.dto';
-import { Request } from 'express';
+import { IsNotEmpty, IsString } from 'class-validator';
 
-export class userDto {
-  name: string;
-  address: string;
-  email: string;
-  password?: string;
-  createdAt: string;
-  updatedAt: string;
-  deletedAt: string;
-  _id?: ObjectId;
-  __v?: number;
-}
-export class userSchmemaDto {
-  name: string;
-  email: string;
-  password?: string;
-  address?: string;
-  createdAt?: string;
-  updatedAt?: string;
-  deletedAt?: string;
-}
-
-export class paramUserIDDto {
-  userId: string;
-}
-
-export class allUsersDataDto extends messageDto {
-  data?: { Pagination?: userDto[]; Users?: userDto[] };
-}
-export class currentUserDataDto extends messageDto {
-  data?: userDto;
-}
-
-export class allUsersDto {
-  page: string;
-}
-export class crrentUserDto extends Request {
-  user?: {
-    _id?: ObjectId;
-    name?: string;
-    address?: string;
-    email?: string;
-    createdAt?: string;
-    updatedAt?: string;
-    deletedAt?: string;
-    iat?: number;
-  };
+export class userIdDto {
+  @IsString() userId: string;
 }
 
 export class updateUserDto {
+  @IsString()
+  @IsNotEmpty()
   oldPassword: string;
+
+  @IsString()
+  @IsNotEmpty()
   newPassword: string;
+
+  @IsString()
+  @IsNotEmpty()
   address: string;
+
+  @IsString()
+  @IsNotEmpty()
   name: string;
 }
 
 export class deleteUserDto {
+  @IsString()
+  @IsNotEmpty()
   password: string;
 }

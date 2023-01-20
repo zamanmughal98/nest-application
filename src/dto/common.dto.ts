@@ -1,14 +1,6 @@
-export class validationErrorDto {
-  value?: string;
-  msg: string;
-  param: string;
-  location?: string;
-}
+import { IsString } from 'class-validator';
 
-export class messageDto {
-  message?: string;
-}
-
-export class validationMessageDto extends messageDto {
-  ValidationError?: IValidationError[];
+export class pageNoDto {
+  @IsString()
+  page: string;
 }

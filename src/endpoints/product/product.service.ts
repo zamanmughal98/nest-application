@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { ObjectId } from 'mongodb';
 import { Model } from 'mongoose';
+import { postProductDto, updateProductDto } from 'src/dto/product.dto';
 import { createTimeStamp, DatabaseNames, SendResponse } from 'src/utils/common';
 
 @Injectable()
@@ -55,9 +56,9 @@ export class productServices {
     }
   }
 
-  async createProduct(body: IPostProduct) {
+  async createProduct(postProduct: postProductDto) {
     try {
-      const { name, description, price, productNo } = body;
+      const { name, description, price, productNo } = postProduct;
 
       const productExists: IProduct = await this.ProductModel.findOne({
         $or: [{ name }, { productNo }],
@@ -84,14 +85,14 @@ export class productServices {
     }
   }
 
-  async updateProduct(productId: string, body: IUpdateProduct) {
+  async updateProduct(productId: string, updateProduct: updateProductDto) {
     try {
       const productExists: IProduct = await this.ProductModel.findById(
         productId,
       );
 
       if (productExists && productExists.deletedAt === '') {
-        const { name, description, price } = body;
+        const { name, description, price } = updateProduct;
 
         productExists.name = name;
         productExists.description = description;

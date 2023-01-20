@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { ObjectId } from 'mongodb';
 import { Model } from 'mongoose';
+import { updateUserDto } from 'src/dto/user.dto';
 import { authenticatePassword, hashPassword } from 'src/utils/authentication';
 import { createTimeStamp, DatabaseNames, SendResponse } from 'src/utils/common';
 
@@ -57,12 +58,12 @@ export class userServices {
     }
   }
 
-  async updateUser(userId: string, body: IUpdateUser) {
+  async updateUser(userId: string, updateUser: updateUserDto) {
     try {
       const userExists: IUser = await this.UserModel.findById(userId);
 
       if (userExists && userExists.deletedAt === '') {
-        const { name, address, oldPassword, newPassword } = body;
+        const { name, address, oldPassword, newPassword } = updateUser;
 
         const isPasswordTrue: boolean = await authenticatePassword(
           oldPassword,

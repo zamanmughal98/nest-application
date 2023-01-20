@@ -1,28 +1,30 @@
-import { ObjectId } from 'mongoose';
-import { validationMessageDto } from './common.dto';
+import { IsEmail, IsNotEmpty, IsString } from 'class-validator';
 
 export class loginDto {
+  @IsEmail()
+  @IsString()
+  @IsNotEmpty()
   email: string;
+
+  @IsString()
+  @IsNotEmpty()
   password: string;
 }
 export class signupDto {
+  @IsEmail()
+  @IsString()
+  @IsNotEmpty()
   email: string;
-  password: string;
-  address: string;
-  name: string;
-}
-export class loginDataDto extends validationMessageDto {
-  accessToken?: string;
-}
 
-export class TokenDto {
-  sessionId: string;
-  userId: string;
-  token: string;
-  email: string;
-  createdAt: string;
-  updatedAt: string;
-  deletedAt: string;
-  _id: ObjectId;
-  __v: number;
+  @IsString()
+  @IsNotEmpty()
+  password: string;
+
+  @IsString()
+  @IsNotEmpty()
+  address: string;
+
+  @IsString()
+  @IsNotEmpty()
+  name: string;
 }
