@@ -9,7 +9,7 @@ import {
   createTimeStamp,
   DatabaseNames,
   OrderStatus,
-  SendResponse
+  SendResponse,
 } from 'src/utils/common';
 
 @Injectable()
@@ -98,10 +98,6 @@ export class orderServices {
     { userId, email }: { userId: string; email: string },
   ) {
     try {
-      const dbUsers = await this.userservices.getUserById(
-        '63c77c6d82740cc17e12ba80',
-      );
-
       const productsMapping: IProductMapping[] =
         await this.calculateProductsPrice(orderingProduct);
 

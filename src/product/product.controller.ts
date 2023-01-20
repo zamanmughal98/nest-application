@@ -22,12 +22,13 @@ export class productController {
   constructor(private readonly productService: productServices) {}
 
   @UseGuards(JwtAuthGuard)
-  @Get()
+  @Get('/')
   getProduct(@Query('page') page: string) {
     return this.productService.getProduct(page);
   }
 
-  @Get(':productId')
+  @UseGuards(JwtAuthGuard)
+  @Get('/:productId')
   getProductById(@Param('productId') productId: string) {
     if (validator.isEmpty(productId) || !isString(productId))
       throw new HttpException(
@@ -39,7 +40,7 @@ export class productController {
   }
 
   @UseGuards(JwtAuthGuard)
-  @Post()
+  @Post('/')
   createProduct(
     @Body('name') name: string,
     @Body('description') description: string,
@@ -79,7 +80,7 @@ export class productController {
   }
 
   @UseGuards(JwtAuthGuard)
-  @Put(':productId')
+  @Put('/:productId')
   updateProduct(
     @Param('productId') productId: string,
 
@@ -119,7 +120,7 @@ export class productController {
   }
 
   @UseGuards(JwtAuthGuard)
-  @Delete(':productId')
+  @Delete('/:productId')
   deleteProduct(@Param('productId') productId: string) {
     if (validator.isEmpty(productId) || !isString(productId))
       throw new HttpException(

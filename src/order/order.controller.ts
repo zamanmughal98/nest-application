@@ -10,7 +10,7 @@ import {
   Put,
   Query,
   Request,
-  UseGuards
+  UseGuards,
 } from '@nestjs/common';
 import { isNumber, isString } from 'lodash';
 import { JwtAuthGuard } from 'src/lib/jwt.guard';
@@ -27,13 +27,13 @@ export class orderController {
   ) {}
 
   @UseGuards(JwtAuthGuard)
-  @Get()
-  getProduct(@Query('page') page: string) {
+  @Get('/')
+  getOrder(@Query('page') page: string) {
     return this.orderService.getOrder(page);
   }
 
   @UseGuards(JwtAuthGuard)
-  @Get(':orderId')
+  @Get('/:orderId')
   getOrderById(@Param('orderId') orderId: string) {
     if (validator.isEmpty(orderId))
       throw new HttpException(
@@ -45,7 +45,7 @@ export class orderController {
   }
 
   @UseGuards(JwtAuthGuard)
-  @Post()
+  @Post('/')
   async createOrder(@Body() body: IPostOrder, @Request() request: ICrrentUser) {
     const { _id: userId, email } = request.user;
     const { product: orderingProduct } = body;
@@ -76,7 +76,7 @@ export class orderController {
   }
 
   @UseGuards(JwtAuthGuard)
-  @Put(':orderId')
+  @Put('/:orderId')
   updateOrder(@Param('orderId') orderId: string) {
     if (validator.isEmpty(orderId))
       throw new HttpException(
@@ -88,7 +88,7 @@ export class orderController {
   }
 
   @UseGuards(JwtAuthGuard)
-  @Delete(':orderId')
+  @Delete('/:orderId')
   deleteOrder(@Param('orderId') orderId: string) {
     if (validator.isEmpty(orderId))
       throw new HttpException(

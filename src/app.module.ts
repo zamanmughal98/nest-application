@@ -8,12 +8,12 @@ import { userModule } from './user/user.module';
 
 @Module({
   imports: [
-    ConfigModule.forRoot(),
-    MongooseModule.forRoot(process.env.MONGO_DB_URL),
-    orderModule,
     productModule,
+    orderModule,
     authModule,
     userModule,
+    MongooseModule.forRoot(process.env.MONGO_DB_URL),
+    ConfigModule.forRoot(),
   ],
   controllers: [],
   providers: [],

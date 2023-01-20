@@ -9,7 +9,7 @@ import {
   Put,
   Query,
   Request,
-  UseGuards
+  UseGuards,
 } from '@nestjs/common';
 import { isString } from 'lodash';
 import { JwtAuthGuard } from 'src/lib/jwt.guard';
@@ -17,7 +17,7 @@ import { SendResponse } from 'src/utils/common';
 import * as validator from 'validator';
 import { userServices } from './user.service';
 
-@Controller()
+@Controller('')
 export class userController {
   constructor(private readonly userServices: userServices) {}
 
@@ -29,13 +29,13 @@ export class userController {
   }
 
   @UseGuards(JwtAuthGuard)
-  @Get()
+  @Get('/')
   getUser(@Query('page') page: string) {
     return this.userServices.getUser(page);
   }
 
   @UseGuards(JwtAuthGuard)
-  @Get('/:userId')
+  @Get(':userId')
   getUserById(@Param('userId') userId: string) {
     if (validator.isEmpty(userId) || !isString(userId))
       throw new HttpException(
