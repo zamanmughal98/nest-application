@@ -1,4 +1,4 @@
-import { IsNotEmpty, IsString, IsNumber } from 'class-validator';
+import { IsNotEmpty, IsString, IsNumber, Min } from 'class-validator';
 
 export class paramProductIDDto {
   @IsString()
@@ -19,6 +19,7 @@ export class postProductDto {
   productNo: string;
 
   @IsNumber()
+  @Min(10)
   price: number;
 }
 export class updateProductDto {
@@ -31,5 +32,6 @@ export class updateProductDto {
   description: string;
 
   @IsNumber()
+  @Min(10)
   price: number;
 }

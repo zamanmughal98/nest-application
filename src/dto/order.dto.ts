@@ -3,6 +3,8 @@ import {
   IsNotEmpty,
   ValidateNested,
   IsNumber,
+  Min,
+  Max,
 } from 'class-validator';
 import { Type } from 'class-transformer';
 
@@ -12,6 +14,8 @@ export class productsArrayDto {
   id: string;
 
   @IsNumber()
+  @Min(1)
+  @Max(20)
   quantity: number;
 }
 export class postOrderDto {
