@@ -19,20 +19,14 @@ interface IUserSchmema {
   deletedAt?: string;
 }
 
-interface IParamUserID {
-  userId: string;
-}
-
 interface IAllUsersData extends IMessage {
-  data?: { Pagination?: IUser[]; Users?: IUser[] };
+  Pagination?: IUser[];
+  Users?: IUser[];
 }
 interface ICurrentUserData extends IMessage {
   data?: IUser;
 }
 
-interface IAllUsers {
-  page: string;
-}
 interface ICrrentUser extends Express.Request {
   user?: {
     _id?: ObjectId;
@@ -44,15 +38,4 @@ interface ICrrentUser extends Express.Request {
     deletedAt?: string;
     iat?: number;
   };
-}
-
-interface IUpdateUser {
-  oldPassword: string;
-  newPassword: string;
-  address: string;
-  name: string;
-}
-
-interface IDeleteUser {
-  password: string;
 }

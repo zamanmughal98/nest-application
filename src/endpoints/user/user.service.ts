@@ -12,7 +12,7 @@ export class userServices {
     @InjectModel(DatabaseNames.USERS) private readonly UserModel: Model<IUser>,
   ) {}
 
-  async getUser(page: string) {
+  async getUser(page: string): Promise<IAllUsersData> {
     try {
       // Pagination
       const recordPerPage = 2;
@@ -43,7 +43,7 @@ export class userServices {
     }
   }
 
-  async getUserById(userId: string) {
+  async getUserById(userId: string): Promise<ICurrentUserData> {
     try {
       const userExists: IUser = await this.UserModel.findById(
         { _id: new ObjectId(userId) },
@@ -51,14 +51,17 @@ export class userServices {
       );
 
       if (userExists && userExists.deletedAt === '') {
-        return userExists;
+        return { data: userExists };
       } else return { message: SendResponse.USER_NOT_FOUND };
     } catch (error) {
       throw new Error(error.message);
     }
   }
 
-  async updateUser(userId: string, updateUser: updateUserDto) {
+  async updateUser(
+    userId: string,
+    updateUser: updateUserDto,
+  ): Promise<ICurrentUserData> {
     try {
       const userExists: IUser = await this.UserModel.findById(userId);
 
@@ -82,7 +85,12 @@ export class userServices {
             { $set: userExists },
           );
 
-          return await this.UserModel.findById(userId);
+          return {
+            data: await this.UserModel.findById(
+              { _id: new ObjectId(userId) },
+              { password: 0 },
+            ),
+          };
         } else return { message: SendResponse.WRONG_PASSWORD };
       } else return { message: SendResponse.USER_NOT_FOUND };
     } catch (error) {
@@ -90,7 +98,7 @@ export class userServices {
     }
   }
 
-  async deleteUser(userId: string, password: string) {
+  async deleteUser(userId: string, password: string): Promise<IMessage> {
     try {
       const userExists: IUser = await this.UserModel.findById(userId);
 

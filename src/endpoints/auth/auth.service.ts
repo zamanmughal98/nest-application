@@ -13,7 +13,7 @@ export class authServices {
     @InjectModel(DatabaseNames.USERS) private readonly UserModel: Model<IUser>,
   ) {}
 
-  async userLogin(login: loginDto) {
+  async userLogin(login: loginDto): Promise<ILoginData> {
     try {
       const { email, password } = login;
 
@@ -44,7 +44,7 @@ export class authServices {
           const accessToken: string = this.jwtService.sign(accessTokenPayload, {
             expiresIn: '1h',
           });
-          return accessToken;
+          return { accessToken };
         } else return { message: SendResponse.WRONG_PASSWORD };
       } else return { message: SendResponse.USER_NOT_FOUND };
     } catch (error) {
@@ -52,7 +52,7 @@ export class authServices {
     }
   }
 
-  async userSignup(signup: signupDto) {
+  async userSignup(signup: signupDto): Promise<ISignupData> {
     try {
       const { name, address, email, password } = signup;
 
@@ -71,7 +71,7 @@ export class authServices {
         };
         const newUser: IUserSchmema = await this.UserModel.create(dataToWrite);
 
-        return newUser;
+        return { data: newUser };
       } else return { message: SendResponse.USER_ALREADY_EXIST };
     } catch (error) {
       throw new Error(error.message);

@@ -20,35 +20,41 @@ export class userController {
 
   @UseGuards(JwtAuthGuard)
   @Get('/me')
-  getCrrentUser(@Request() request: ICrrentUser) {
+  getCrrentUser(@Request() request: ICrrentUser): Promise<ICurrentUserData> {
     const { _id: userId } = request.user;
     return this.userServices.getUserById(userId);
   }
 
   @UseGuards(JwtAuthGuard)
   @Get('/')
-  getUser(@Query() pageNo: pageNoDto) {
+  getUser(@Query() pageNo: pageNoDto): Promise<IAllUsersData> {
     const { page } = pageNo;
     return this.userServices.getUser(page);
   }
 
   @UseGuards(JwtAuthGuard)
   @Get('/:userId')
-  getUserById(@Param() user: userIdDto) {
+  getUserById(@Param() user: userIdDto): Promise<ICurrentUserData> {
     const { userId } = user;
     return this.userServices.getUserById(userId);
   }
 
   @UseGuards(JwtAuthGuard)
   @Put('/:userId')
-  updateUser(@Param() user: userIdDto, @Body() updateUser: updateUserDto) {
+  updateUser(
+    @Param() user: userIdDto,
+    @Body() updateUser: updateUserDto,
+  ): Promise<ICurrentUserData> {
     const { userId } = user;
     return this.userServices.updateUser(userId, updateUser);
   }
 
   @UseGuards(JwtAuthGuard)
   @Delete('/:userId')
-  deleteUser(@Param() user: userIdDto, @Body() deleteUser: deleteUserDto) {
+  deleteUser(
+    @Param() user: userIdDto,
+    @Body() deleteUser: deleteUserDto,
+  ): Promise<IMessage> {
     const { userId } = user;
     const { password } = deleteUser;
 

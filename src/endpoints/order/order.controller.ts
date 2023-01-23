@@ -28,14 +28,16 @@ export class orderController {
 
   @UseGuards(JwtAuthGuard)
   @Get('/')
-  getOrder(@Query() pageNo: pageNoDto) {
+  getOrder(@Query() pageNo: pageNoDto): Promise<IGetOrdersData> {
     const { page } = pageNo;
     return this.orderService.getOrder(page);
   }
 
   @UseGuards(JwtAuthGuard)
   @Get('/:orderId')
-  getOrderById(@Param() paramOrderID: paramOrderIDDto) {
+  getOrderById(
+    @Param() paramOrderID: paramOrderIDDto,
+  ): Promise<IPostOrderData> {
     const { orderId } = paramOrderID;
     return this.orderService.getOrderById(orderId);
   }
@@ -45,12 +47,13 @@ export class orderController {
   async createOrder(
     @Body() postOrder: postOrderDto,
     @Request() request: ICrrentUser,
-  ) {
+  ): Promise<IPostOrderData> {
     const { _id: userId, email } = request.user;
     const { product: orderingProduct } = postOrder;
-    const requestedUser = (await this.userService.getUserById(userId)) as IUser;
-
-    if (!requestedUser._id)
+    const { data } = (await this.userService.getUserById(
+      userId,
+    )) as ICurrentUserData;
+    if (!data._id)
       throw new HttpException(
         SendResponse.USER_MIGHT_DELETED,
         HttpStatus.FORBIDDEN,
@@ -61,14 +64,14 @@ export class orderController {
 
   @UseGuards(JwtAuthGuard)
   @Put('/:orderId')
-  updateOrder(@Param() paramOrderID: paramOrderIDDto) {
+  updateOrder(@Param() paramOrderID: paramOrderIDDto): Promise<IPostOrderData> {
     const { orderId } = paramOrderID;
     return this.orderService.updateOrder(orderId);
   }
 
   @UseGuards(JwtAuthGuard)
   @Delete('/:orderId')
-  deleteOrder(@Param() paramOrderID: paramOrderIDDto) {
+  deleteOrder(@Param() paramOrderID: paramOrderIDDto): Promise<IMessage> {
     const { orderId } = paramOrderID;
     return this.orderService.deleteOrder(orderId);
   }

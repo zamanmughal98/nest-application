@@ -6,7 +6,7 @@ interface IProductMapping {
   totalPrice: number;
 }
 interface IUserMapping {
-  userId: ObjectId;
+  userId: ObjectId | string;
   email: string;
 }
 
@@ -31,26 +31,16 @@ interface IOrderSchema {
   updatedAt?: string;
   deletedAt?: string;
 }
-interface IPostOrderData extends IValidationMessage {
+interface IPostOrderData extends IMessage {
   data?: IOrderSchema;
 }
 
 interface IGetOrdersData extends IMessage {
-  data?: { Pagination?: IOrder[]; Orders?: IOrder[] };
-}
-interface IGetOrders {
-  page: string;
+  Pagination?: IOrder[];
+  Orders?: IOrder[];
 }
 
 interface ProductsArray {
   id: string;
   quantity: number;
-}
-
-interface IPostOrder {
-  product: ProductsArray[];
-}
-
-interface IParamOrderID {
-  orderId: string;
 }

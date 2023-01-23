@@ -24,21 +24,25 @@ export class productController {
 
   @UseGuards(JwtAuthGuard)
   @Get('/')
-  getProduct(@Query() pageNo: pageNoDto) {
+  getProduct(@Query() pageNo: pageNoDto): Promise<IGetProductsData> {
     const { page } = pageNo;
     return this.productService.getProduct(page);
   }
 
   @UseGuards(JwtAuthGuard)
   @Get('/:productId')
-  getProductById(@Param() paramProductId: paramProductIDDto) {
+  getProductById(
+    @Param() paramProductId: paramProductIDDto,
+  ): Promise<IPostProductData> {
     const { productId } = paramProductId;
     return this.productService.getProductById(productId);
   }
 
   @UseGuards(JwtAuthGuard)
   @Post('/')
-  createProduct(@Body() postProduct: postProductDto) {
+  createProduct(
+    @Body() postProduct: postProductDto,
+  ): Promise<IPostProductData> {
     return this.productService.createProduct(postProduct);
   }
 
@@ -47,14 +51,14 @@ export class productController {
   updateProduct(
     @Param() paramProductId: paramProductIDDto,
     @Body() updateProduct: updateProductDto,
-  ) {
+  ): Promise<IPostProductData> {
     const { productId } = paramProductId;
     return this.productService.updateProduct(productId, updateProduct);
   }
 
   @UseGuards(JwtAuthGuard)
   @Delete('/:productId')
-  deleteProduct(@Param() paramProductId: paramProductIDDto) {
+  deleteProduct(@Param() paramProductId: paramProductIDDto): Promise<IMessage> {
     const { productId } = paramProductId;
     return this.productService.deleteProduct(productId);
   }

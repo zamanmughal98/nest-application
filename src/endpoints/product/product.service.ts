@@ -12,7 +12,7 @@ export class productServices {
     private readonly ProductModel: Model<IProduct>,
   ) {}
 
-  async getProduct(page: string) {
+  async getProduct(page: string): Promise<IGetProductsData> {
     try {
       // Pagination
       const recordPerPage = 2;
@@ -42,21 +42,21 @@ export class productServices {
     }
   }
 
-  async getProductById(productId: string) {
+  async getProductById(productId: string): Promise<IPostProductData> {
     try {
       const productExists: IProduct = await this.ProductModel.findById({
         _id: new ObjectId(productId),
       });
 
       if (productExists && productExists.deletedAt === '') {
-        return productExists;
+        return { data: productExists };
       } else return { message: SendResponse.PRODUCT_NOT_FOUND };
     } catch (error) {
       throw new Error(error.message);
     }
   }
 
-  async createProduct(postProduct: postProductDto) {
+  async createProduct(postProduct: postProductDto): Promise<IPostProductData> {
     try {
       const { name, description, price, productNo } = postProduct;
 
@@ -78,14 +78,17 @@ export class productServices {
         const newProduct: IProductSchema = await this.ProductModel.create(
           dataToWrite,
         );
-        return newProduct;
+        return { data: newProduct };
       } else return { message: SendResponse.PRODUCT_ALREADY_EXIST };
     } catch (error) {
       throw new Error(error.message);
     }
   }
 
-  async updateProduct(productId: string, updateProduct: updateProductDto) {
+  async updateProduct(
+    productId: string,
+    updateProduct: updateProductDto,
+  ): Promise<IPostProductData> {
     try {
       const productExists: IProduct = await this.ProductModel.findById(
         productId,
@@ -104,14 +107,14 @@ export class productServices {
           { $set: productExists },
         );
 
-        return await this.ProductModel.findById(productId);
+        return { data: await this.ProductModel.findById(productId) };
       } else return { message: SendResponse.PRODUCT_NOT_FOUND };
     } catch (error) {
       throw new Error(error.message);
     }
   }
 
-  async deleteProduct(productId: string) {
+  async deleteProduct(productId: string): Promise<IMessage> {
     try {
       const productExists: IProduct = await this.ProductModel.findById(
         productId,

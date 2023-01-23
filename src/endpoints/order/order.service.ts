@@ -21,7 +21,7 @@ export class orderServices {
     private productservices: productServices,
   ) {}
 
-  async getOrder(page: string) {
+  async getOrder(page: string): Promise<IGetOrdersData> {
     try {
       // Pagination
       const recordPerPage = 2;
@@ -54,20 +54,22 @@ export class orderServices {
     }
   }
 
-  async getOrderById(orderId: string) {
+  async getOrderById(orderId: string): Promise<IPostOrderData> {
     try {
       const orderExists: IOrder = await this.OrderModel.findById({
         _id: new ObjectId(orderId),
       });
 
       if (orderExists && orderExists.deletedAt === '') {
-        return orderExists;
+        return { data: orderExists };
       } else return { message: SendResponse.ORDER_NOT_FOUND };
     } catch (error) {
       throw new HttpException(error, 500);
     }
   }
-  calculateProductsPrice = async (data: ProductsArray[]) => {
+  async calculateProductsPrice(
+    data: ProductsArray[],
+  ): Promise<IProductMapping[]> {
     const { Products: allproducts } = await this.productservices.getProduct(
       '0',
     );
@@ -91,12 +93,12 @@ export class orderServices {
         return undefined;
       })
       .filter((item) => item !== undefined);
-  };
+  }
 
   async createOrder(
     orderingProduct: ProductsArray[],
-    { userId, email }: { userId: string; email: string },
-  ) {
+    { userId, email }: IUserMapping,
+  ): Promise<IPostOrderData> {
     try {
       const productsMapping: IProductMapping[] =
         await this.calculateProductsPrice(orderingProduct);
@@ -124,14 +126,14 @@ export class orderServices {
           dataToWrite,
         );
 
-        return newOrder;
+        return { data: newOrder };
       } else return { message: SendResponse.PRODUCT_NOT_FOUND };
     } catch (error) {
       throw new HttpException(error, 500);
     }
   }
 
-  async updateOrder(orderId: string) {
+  async updateOrder(orderId: string): Promise<IPostOrderData> {
     try {
       const orderExists: IOrder = await this.OrderModel.findById(orderId);
 
@@ -143,14 +145,14 @@ export class orderServices {
           { _id: new ObjectId(orderId) },
           { $set: orderExists },
         );
-        return await this.OrderModel.findById(orderId);
+        return { data: await this.OrderModel.findById(orderId) };
       } else return { message: SendResponse.ORDER_NOT_FOUND };
     } catch (error) {
       throw new HttpException(error, 500);
     }
   }
 
-  async deleteOrder(orderId: string) {
+  async deleteOrder(orderId: string): Promise<IMessage> {
     try {
       const orderExists: IOrder = await this.OrderModel.findById(orderId);
 
