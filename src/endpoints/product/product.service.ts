@@ -12,7 +12,16 @@ export class productServices {
     private readonly ProductModel: Model<IProduct>,
   ) {}
 
-  async getProduct(page: string): Promise<IGetProductsData> {
+  async getManyProducts(productsArray: string[]) {
+    const allproducts: IProduct[] = await this.ProductModel.find({
+      _id: productsArray,
+      deletedAt: '',
+    });
+
+    return allproducts;
+  }
+
+  async getProduct(page: string): Promise<IProductPaginationData> {
     try {
       // Pagination
       const recordPerPage = 2;
@@ -33,8 +42,7 @@ export class productServices {
           skipRecords + recordPerPage,
         );
 
-        if (allproducts && paginationRecords)
-          return { Pagination: paginationRecords, Products: allproducts };
+        if (paginationRecords) return { data: paginationRecords };
         else return { message: SendResponse.PRODUCT_NOT_FOUND };
       } else return { message: SendResponse.PAGE_LIMIT_ERROR };
     } catch (error) {

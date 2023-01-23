@@ -27,7 +27,7 @@ export class userController {
 
   @UseGuards(JwtAuthGuard)
   @Get('/')
-  getUser(@Query() pageNo: pageNoDto): Promise<IAllUsersData> {
+  getUser(@Query() pageNo: pageNoDto): Promise<IUsersPaginationData> {
     const { page } = pageNo;
     return this.userServices.getUser(page);
   }

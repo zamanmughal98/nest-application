@@ -25,12 +25,12 @@ export class authServices {
       if (userExists) {
         const { _id: UserId } = userExists;
 
-        const checkPassword: boolean = await authenticatePassword(
+        const passwordMatch: boolean = await authenticatePassword(
           password,
           userExists.password,
         );
 
-        if (checkPassword) {
+        if (passwordMatch) {
           const accessTokenPayload = {
             _id: UserId,
             name: userExists.name,

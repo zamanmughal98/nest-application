@@ -21,7 +21,7 @@ export class orderServices {
     private productservices: productServices,
   ) {}
 
-  async getOrder(page: string): Promise<IGetOrdersData> {
+  async getOrder(page: string): Promise<IOrderPaginationData> {
     try {
       // Pagination
       const recordPerPage = 2;
@@ -42,11 +42,7 @@ export class orderServices {
           skipRecords + recordPerPage,
         );
 
-        if (allOrders && paginationRecords)
-          return {
-            Pagination: paginationRecords,
-            Orders: allOrders,
-          };
+        if (paginationRecords) return { data: paginationRecords };
         else return { message: SendResponse.PRODUCT_NOT_FOUND };
       } else return { message: SendResponse.PAGE_LIMIT_ERROR };
     } catch (error) {
@@ -67,11 +63,11 @@ export class orderServices {
       throw new HttpException(error, 500);
     }
   }
-  async calculateProductsPrice(
-    data: ProductsArray[],
-  ): Promise<IProductMapping[]> {
-    const { Products: allproducts } = await this.productservices.getProduct(
-      '0',
+  async calculateProductsPrice(data: ProductsArray[]) {
+    const productIdList = data.map(({ id }) => id);
+
+    const allproducts = await this.productservices.getManyProducts(
+      productIdList,
     );
 
     return data

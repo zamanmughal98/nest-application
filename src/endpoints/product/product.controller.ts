@@ -24,7 +24,7 @@ export class productController {
 
   @UseGuards(JwtAuthGuard)
   @Get('/')
-  getProduct(@Query() pageNo: pageNoDto): Promise<IGetProductsData> {
+  getProduct(@Query() pageNo: pageNoDto): Promise<IProductPaginationData> {
     const { page } = pageNo;
     return this.productService.getProduct(page);
   }

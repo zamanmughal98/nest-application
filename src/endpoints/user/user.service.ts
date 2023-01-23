@@ -12,7 +12,7 @@ export class userServices {
     @InjectModel(DatabaseNames.USERS) private readonly UserModel: Model<IUser>,
   ) {}
 
-  async getUser(page: string): Promise<IAllUsersData> {
+  async getUser(page: string): Promise<IUsersPaginationData> {
     try {
       // Pagination
       const recordPerPage = 2;
@@ -34,8 +34,7 @@ export class userServices {
           skipRecords + recordPerPage,
         );
 
-        if (allUsers && paginationRecords)
-          return { Pagination: paginationRecords, Users: allUsers };
+        if (paginationRecords) return { data: paginationRecords };
         else return { message: SendResponse.USER_NOT_FOUND };
       } else return { message: SendResponse.PAGE_LIMIT_ERROR };
     } catch (error) {

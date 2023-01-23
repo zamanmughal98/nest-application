@@ -28,7 +28,7 @@ export class orderController {
 
   @UseGuards(JwtAuthGuard)
   @Get('/')
-  getOrder(@Query() pageNo: pageNoDto): Promise<IGetOrdersData> {
+  getOrder(@Query() pageNo: pageNoDto): Promise<IOrderPaginationData> {
     const { page } = pageNo;
     return this.orderService.getOrder(page);
   }

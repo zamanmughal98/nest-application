@@ -19,9 +19,8 @@ interface IUserSchmema {
   deletedAt?: string;
 }
 
-interface IAllUsersData extends IMessage {
-  Pagination?: IUser[];
-  Users?: IUser[];
+interface IUsersPaginationData extends IMessage {
+  data?: IUser[];
 }
 interface ICurrentUserData extends IMessage {
   data?: IUser;

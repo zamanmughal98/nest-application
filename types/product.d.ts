@@ -20,7 +20,6 @@ interface IProductSchema {
 interface IPostProductData extends IMessage {
   data?: IProductSchema;
 }
-interface IGetProductsData extends IMessage {
-  Pagination?: IProduct[];
-  Products?: IProduct[];
+interface IProductPaginationData extends IMessage {
+  data?: IProduct[];
 }

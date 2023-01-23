@@ -35,9 +35,8 @@ interface IPostOrderData extends IMessage {
   data?: IOrderSchema;
 }
 
-interface IGetOrdersData extends IMessage {
-  Pagination?: IOrder[];
-  Orders?: IOrder[];
+interface IOrderPaginationData extends IMessage {
+  data?: IOrder[];
 }
 
 interface ProductsArray {
