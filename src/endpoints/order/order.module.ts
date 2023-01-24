@@ -1,9 +1,9 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { MongooseModule } from '@nestjs/mongoose';
-import { orderSchema } from 'src/lib/mongoDBSchema';
 import { productModule } from 'src/endpoints/product/product.module';
 import { userModule } from 'src/endpoints/user/user.module';
+import { orderSchema } from 'src/schemas/order.schema';
 import { DatabaseNames } from 'src/utils/common';
 import { orderController } from './order.controller';
 import { orderServices } from './order.service';

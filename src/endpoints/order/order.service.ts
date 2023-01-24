@@ -3,6 +3,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import { ObjectId } from 'mongodb';
 import { Model } from 'mongoose';
 import { productServices } from 'src/endpoints/product/product.service';
+import { orderDocument } from 'src/schemas/order.schema';
 
 import {
   createTimeStamp,
@@ -15,11 +16,11 @@ import {
 export class orderServices {
   constructor(
     @InjectModel(DatabaseNames.ORDERS)
-    private readonly orderModel: Model<IOrder>,
+    private readonly orderModel: Model<orderDocument>,
     private productServices: productServices,
   ) {}
 
-  async getOrder(page: string): Promise<IOrderPaginationData> {
+  async getOrder(page: string) {
     try {
       // Pagination
       const recordPerPage = 2;
@@ -31,11 +32,11 @@ export class orderServices {
       );
 
       if (pageNo <= maxPages) {
-        const orders: IOrder[] = await this.orderModel.find({
+        const orders = await this.orderModel.find({
           deletedAt: '',
         });
 
-        const paginationRecords: IOrder[] = orders.slice(
+        const paginationRecords = orders.slice(
           skipRecords,
           skipRecords + recordPerPage,
         );
@@ -48,9 +49,9 @@ export class orderServices {
     }
   }
 
-  async getOrderById(orderId: string): Promise<IPostOrderData> {
+  async getOrderById(orderId: string) {
     try {
-      const order: IOrder = await this.orderModel.findById({
+      const order = await this.orderModel.findById({
         _id: new ObjectId(orderId),
       });
 
@@ -61,22 +62,16 @@ export class orderServices {
       throw new HttpException(error, 500);
     }
   }
-  async calculateProductsPrice(
-    data: IProductsArray[],
-  ): Promise<IProductMapping[]> {
+  async calculateProductsPrice(data: IProductsArray[]) {
     const productIdArray: string[] = data.map(({ id }) => id);
 
-    const products: IProduct[] = await this.productServices.getManyProducts(
-      productIdArray,
-    );
+    const products = await this.productServices.getManyProducts(productIdArray);
 
     return data
       .map((item) => {
         const id = new ObjectId(item.id);
 
-        const productDetails: IProduct = products.find(({ _id: PID }) =>
-          PID.equals(id),
-        );
+        const productDetails = products.find(({ _id: PID }) => PID.equals(id));
         if (productDetails) {
           return {
             productId: id,
@@ -94,10 +89,11 @@ export class orderServices {
   async createOrder(
     orderingProduct: IProductsArray[],
     { userId, email }: IUserMapping,
-  ): Promise<IPostOrderData> {
+  ) {
     try {
-      const productsMapping: IProductMapping[] =
-        await this.calculateProductsPrice(orderingProduct);
+      const productsMapping = await this.calculateProductsPrice(
+        orderingProduct,
+      );
 
       if (productsMapping && productsMapping.length !== 0) {
         const grandTotal = productsMapping.reduce(
@@ -118,9 +114,7 @@ export class orderServices {
           deletedAt: '',
         };
 
-        const newOrder: IOrderSchema = await this.orderModel.create(
-          dataToWrite,
-        );
+        const newOrder = await this.orderModel.create(dataToWrite);
 
         return { data: newOrder };
       } else return { message: SendResponse.PRODUCT_NOT_FOUND };
@@ -129,9 +123,9 @@ export class orderServices {
     }
   }
 
-  async updateOrder(orderId: string): Promise<IPostOrderData> {
+  async updateOrder(orderId: string) {
     try {
-      const order: IOrder = await this.orderModel.findById(orderId);
+      const order = await this.orderModel.findById(orderId);
 
       if (order && order.deletedAt === '') {
         order.status = OrderStatus.SHIPPED;
@@ -148,9 +142,9 @@ export class orderServices {
     }
   }
 
-  async deleteOrder(orderId: string): Promise<IMessage> {
+  async deleteOrder(orderId: string) {
     try {
-      const order: IOrder = await this.orderModel.findById(orderId);
+      const order = await this.orderModel.findById(orderId);
 
       if (order && order.deletedAt === '') {
         order.deletedAt = createTimeStamp();

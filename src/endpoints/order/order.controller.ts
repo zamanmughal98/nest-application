@@ -28,16 +28,14 @@ export class orderController {
 
   @UseGuards(jwtAuthGuard)
   @Get('/')
-  getOrder(@Query() pageNo: pageNoDto): Promise<IOrderPaginationData> {
+  getOrder(@Query() pageNo: pageNoDto) {
     const { page } = pageNo;
     return this.orderService.getOrder(page);
   }
 
   @UseGuards(jwtAuthGuard)
   @Get('/:orderId')
-  getOrderById(
-    @Param() paramOrderID: orderIdDto,
-  ): Promise<IPostOrderData> {
+  getOrderById(@Param() paramOrderID: orderIdDto) {
     const { orderId } = paramOrderID;
     return this.orderService.getOrderById(orderId);
   }
@@ -47,7 +45,7 @@ export class orderController {
   async createOrder(
     @Body() postOrder: postOrderDto,
     @Request() request: ICrrentUser,
-  ): Promise<IPostOrderData> {
+  ) {
     const { _id: userId, email } = request.user;
     const { product: orderingProduct } = postOrder;
     const { data } = (await this.userService.getUserById(
@@ -64,14 +62,14 @@ export class orderController {
 
   @UseGuards(jwtAuthGuard)
   @Put('/:orderId')
-  updateOrder(@Param() paramOrderID: orderIdDto): Promise<IPostOrderData> {
+  updateOrder(@Param() paramOrderID: orderIdDto) {
     const { orderId } = paramOrderID;
     return this.orderService.updateOrder(orderId);
   }
 
   @UseGuards(jwtAuthGuard)
   @Delete('/:orderId')
-  deleteOrder(@Param() paramOrderID: orderIdDto): Promise<IMessage> {
+  deleteOrder(@Param() paramOrderID: orderIdDto) {
     const { orderId } = paramOrderID;
     return this.orderService.deleteOrder(orderId);
   }
