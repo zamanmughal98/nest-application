@@ -9,16 +9,20 @@ import { createTimeStamp, DatabaseNames, SendResponse } from 'src/utils/common';
 export class productServices {
   constructor(
     @InjectModel(DatabaseNames.PRODUCTS)
-    private readonly ProductModel: Model<IProduct>,
+    private readonly productModel: Model<IProduct>,
   ) {}
 
-  async getManyProducts(productsArray: string[]) {
-    const allproducts: IProduct[] = await this.ProductModel.find({
-      _id: productsArray,
-      deletedAt: '',
-    });
+  async getManyProducts(productIdArray: string[]): Promise<IProduct[]> {
+    try {
+      const products: IProduct[] = await this.productModel.find({
+        _id: productIdArray,
+        deletedAt: '',
+      });
 
-    return allproducts;
+      return products;
+    } catch (error) {
+      throw new Error(error);
+    }
   }
 
   async getProduct(page: string): Promise<IProductPaginationData> {
@@ -28,16 +32,16 @@ export class productServices {
       const pageNo: number = parseInt(page, 10) || 1;
       const skipRecords: number = recordPerPage * (pageNo - 1);
       const maxPages: number = Math.ceil(
-        (await this.ProductModel.countDocuments({ deletedAt: '' })) /
+        (await this.productModel.countDocuments({ deletedAt: '' })) /
           recordPerPage,
       );
 
       if (pageNo <= maxPages) {
-        const allproducts: IProduct[] = await this.ProductModel.find({
+        const products: IProduct[] = await this.productModel.find({
           deletedAt: '',
         });
 
-        const paginationRecords: IProduct[] = allproducts.slice(
+        const paginationRecords: IProduct[] = products.slice(
           skipRecords,
           skipRecords + recordPerPage,
         );
@@ -52,12 +56,12 @@ export class productServices {
 
   async getProductById(productId: string): Promise<IPostProductData> {
     try {
-      const productExists: IProduct = await this.ProductModel.findById({
+      const product: IProduct = await this.productModel.findById({
         _id: new ObjectId(productId),
       });
 
-      if (productExists && productExists.deletedAt === '') {
-        return { data: productExists };
+      if (product && product.deletedAt === '') {
+        return { data: product };
       } else return { message: SendResponse.PRODUCT_NOT_FOUND };
     } catch (error) {
       throw new Error(error.message);
@@ -68,11 +72,11 @@ export class productServices {
     try {
       const { name, description, price, productNo } = postProduct;
 
-      const productExists: IProduct = await this.ProductModel.findOne({
+      const product: IProduct = await this.productModel.findOne({
         $or: [{ name }, { productNo }],
       });
 
-      if (!productExists) {
+      if (!product) {
         const dataToWrite = {
           name,
           description,
@@ -83,7 +87,7 @@ export class productServices {
           deletedAt: '',
         };
 
-        const newProduct: IProductSchema = await this.ProductModel.create(
+        const newProduct: IProductSchema = await this.productModel.create(
           dataToWrite,
         );
         return { data: newProduct };
@@ -98,24 +102,22 @@ export class productServices {
     updateProduct: updateProductDto,
   ): Promise<IPostProductData> {
     try {
-      const productExists: IProduct = await this.ProductModel.findById(
-        productId,
-      );
+      const product: IProduct = await this.productModel.findById(productId);
 
-      if (productExists && productExists.deletedAt === '') {
+      if (product && product.deletedAt === '') {
         const { name, description, price } = updateProduct;
 
-        productExists.name = name;
-        productExists.description = description;
-        productExists.price = price;
-        productExists.updatedAt = createTimeStamp();
+        product.name = name;
+        product.description = description;
+        product.price = price;
+        product.updatedAt = createTimeStamp();
 
-        await this.ProductModel.updateOne(
+        await this.productModel.updateOne(
           { _id: new ObjectId(productId) },
-          { $set: productExists },
+          { $set: product },
         );
 
-        return { data: await this.ProductModel.findById(productId) };
+        return { data: await this.productModel.findById(productId) };
       } else return { message: SendResponse.PRODUCT_NOT_FOUND };
     } catch (error) {
       throw new Error(error.message);
@@ -124,16 +126,14 @@ export class productServices {
 
   async deleteProduct(productId: string): Promise<IMessage> {
     try {
-      const productExists: IProduct = await this.ProductModel.findById(
-        productId,
-      );
+      const product: IProduct = await this.productModel.findById(productId);
 
-      if (productExists && productExists.deletedAt === '') {
-        productExists.deletedAt = createTimeStamp();
+      if (product && product.deletedAt === '') {
+        product.deletedAt = createTimeStamp();
 
-        await this.ProductModel.updateOne(
+        await this.productModel.updateOne(
           { _id: new ObjectId(productId) },
-          { $set: productExists },
+          { $set: product },
         );
 
         return { message: SendResponse.PRODUCT_DELETED };

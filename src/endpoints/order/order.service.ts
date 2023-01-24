@@ -3,7 +3,6 @@ import { InjectModel } from '@nestjs/mongoose';
 import { ObjectId } from 'mongodb';
 import { Model } from 'mongoose';
 import { productServices } from 'src/endpoints/product/product.service';
-import { userServices } from 'src/endpoints/user/user.service';
 
 import {
   createTimeStamp,
@@ -16,9 +15,8 @@ import {
 export class orderServices {
   constructor(
     @InjectModel(DatabaseNames.ORDERS)
-    private readonly OrderModel: Model<IOrder>,
-    private userservices: userServices,
-    private productservices: productServices,
+    private readonly orderModel: Model<IOrder>,
+    private productServices: productServices,
   ) {}
 
   async getOrder(page: string): Promise<IOrderPaginationData> {
@@ -28,16 +26,16 @@ export class orderServices {
       const pageNo: number = parseInt(page, 10) || 1;
       const skipRecords: number = recordPerPage * (pageNo - 1);
       const maxPages: number = Math.ceil(
-        (await this.OrderModel.countDocuments({ deletedAt: '' })) /
+        (await this.orderModel.countDocuments({ deletedAt: '' })) /
           recordPerPage,
       );
 
       if (pageNo <= maxPages) {
-        const allOrders: IOrder[] = await this.OrderModel.find({
+        const orders: IOrder[] = await this.orderModel.find({
           deletedAt: '',
         });
 
-        const paginationRecords: IOrder[] = allOrders.slice(
+        const paginationRecords: IOrder[] = orders.slice(
           skipRecords,
           skipRecords + recordPerPage,
         );
@@ -52,29 +50,31 @@ export class orderServices {
 
   async getOrderById(orderId: string): Promise<IPostOrderData> {
     try {
-      const orderExists: IOrder = await this.OrderModel.findById({
+      const order: IOrder = await this.orderModel.findById({
         _id: new ObjectId(orderId),
       });
 
-      if (orderExists && orderExists.deletedAt === '') {
-        return { data: orderExists };
+      if (order && order.deletedAt === '') {
+        return { data: order };
       } else return { message: SendResponse.ORDER_NOT_FOUND };
     } catch (error) {
       throw new HttpException(error, 500);
     }
   }
-  async calculateProductsPrice(data: ProductsArray[]) {
-    const productIdList = data.map(({ id }) => id);
+  async calculateProductsPrice(
+    data: IProductsArray[],
+  ): Promise<IProductMapping[]> {
+    const productIdArray: string[] = data.map(({ id }) => id);
 
-    const allproducts = await this.productservices.getManyProducts(
-      productIdList,
+    const products: IProduct[] = await this.productServices.getManyProducts(
+      productIdArray,
     );
 
     return data
       .map((item) => {
         const id = new ObjectId(item.id);
 
-        const productDetails: IProduct = allproducts.find(({ _id: PID }) =>
+        const productDetails: IProduct = products.find(({ _id: PID }) =>
           PID.equals(id),
         );
         if (productDetails) {
@@ -92,7 +92,7 @@ export class orderServices {
   }
 
   async createOrder(
-    orderingProduct: ProductsArray[],
+    orderingProduct: IProductsArray[],
     { userId, email }: IUserMapping,
   ): Promise<IPostOrderData> {
     try {
@@ -118,7 +118,7 @@ export class orderServices {
           deletedAt: '',
         };
 
-        const newOrder: IOrderSchema = await this.OrderModel.create(
+        const newOrder: IOrderSchema = await this.orderModel.create(
           dataToWrite,
         );
 
@@ -131,17 +131,17 @@ export class orderServices {
 
   async updateOrder(orderId: string): Promise<IPostOrderData> {
     try {
-      const orderExists: IOrder = await this.OrderModel.findById(orderId);
+      const order: IOrder = await this.orderModel.findById(orderId);
 
-      if (orderExists && orderExists.deletedAt === '') {
-        orderExists.status = OrderStatus.SHIPPED;
-        orderExists.updatedAt = createTimeStamp();
+      if (order && order.deletedAt === '') {
+        order.status = OrderStatus.SHIPPED;
+        order.updatedAt = createTimeStamp();
 
-        await this.OrderModel.updateOne(
+        await this.orderModel.updateOne(
           { _id: new ObjectId(orderId) },
-          { $set: orderExists },
+          { $set: order },
         );
-        return { data: await this.OrderModel.findById(orderId) };
+        return { data: await this.orderModel.findById(orderId) };
       } else return { message: SendResponse.ORDER_NOT_FOUND };
     } catch (error) {
       throw new HttpException(error, 500);
@@ -150,15 +150,15 @@ export class orderServices {
 
   async deleteOrder(orderId: string): Promise<IMessage> {
     try {
-      const orderExists: IOrder = await this.OrderModel.findById(orderId);
+      const order: IOrder = await this.orderModel.findById(orderId);
 
-      if (orderExists && orderExists.deletedAt === '') {
-        orderExists.deletedAt = createTimeStamp();
-        orderExists.status = OrderStatus.COMPLETED;
+      if (order && order.deletedAt === '') {
+        order.deletedAt = createTimeStamp();
+        order.status = OrderStatus.COMPLETED;
 
-        await this.OrderModel.updateOne(
+        await this.orderModel.updateOne(
           { _id: new ObjectId(orderId) },
-          { $set: orderExists },
+          { $set: order },
         );
 
         return { message: SendResponse.ORDER_DELETED };

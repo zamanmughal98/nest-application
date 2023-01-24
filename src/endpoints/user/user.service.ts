@@ -9,7 +9,7 @@ import { createTimeStamp, DatabaseNames, SendResponse } from 'src/utils/common';
 @Injectable()
 export class userServices {
   constructor(
-    @InjectModel(DatabaseNames.USERS) private readonly UserModel: Model<IUser>,
+    @InjectModel(DatabaseNames.USERS) private readonly userModel: Model<IUser>,
   ) {}
 
   async getUser(page: string): Promise<IUsersPaginationData> {
@@ -19,17 +19,17 @@ export class userServices {
       const pageNo: number = parseInt(page, 10) || 1;
       const skipRecords: number = recordPerPage * (pageNo - 1);
       const maxPages: number = Math.ceil(
-        (await this.UserModel.countDocuments({ deletedAt: '' })) /
+        (await this.userModel.countDocuments({ deletedAt: '' })) /
           recordPerPage,
       );
 
       if (pageNo <= maxPages) {
-        const allUsers: IUser[] = await this.UserModel.find(
+        const users: IUser[] = await this.userModel.find(
           { deletedAt: '' },
           { password: 0 },
         );
 
-        const paginationRecords: IUser[] = allUsers.slice(
+        const paginationRecords: IUser[] = users.slice(
           skipRecords,
           skipRecords + recordPerPage,
         );
@@ -44,13 +44,13 @@ export class userServices {
 
   async getUserById(userId: string): Promise<ICurrentUserData> {
     try {
-      const userExists: IUser = await this.UserModel.findById(
+      const user: IUser = await this.userModel.findById(
         { _id: new ObjectId(userId) },
         { password: 0 },
       );
 
-      if (userExists && userExists.deletedAt === '') {
-        return { data: userExists };
+      if (user && user.deletedAt === '') {
+        return { data: user };
       } else return { message: SendResponse.USER_NOT_FOUND };
     } catch (error) {
       throw new Error(error.message);
@@ -62,30 +62,30 @@ export class userServices {
     updateUser: updateUserDto,
   ): Promise<ICurrentUserData> {
     try {
-      const userExists: IUser = await this.UserModel.findById(userId);
+      const user: IUser = await this.userModel.findById(userId);
 
-      if (userExists && userExists.deletedAt === '') {
+      if (user && user.deletedAt === '') {
         const { name, address, oldPassword, newPassword } = updateUser;
 
         const isPasswordTrue: boolean = await authenticatePassword(
           oldPassword,
-          userExists.password,
+          user.password,
         );
 
         if (isPasswordTrue) {
           const newHashedPassword = await hashPassword(newPassword);
-          userExists.name = name;
-          userExists.address = address;
-          userExists.password = newHashedPassword;
-          userExists.updatedAt = createTimeStamp();
+          user.name = name;
+          user.address = address;
+          user.password = newHashedPassword;
+          user.updatedAt = createTimeStamp();
 
-          await this.UserModel.updateOne(
+          await this.userModel.updateOne(
             { _id: new ObjectId(userId) },
-            { $set: userExists },
+            { $set: user },
           );
 
           return {
-            data: await this.UserModel.findById(
+            data: await this.userModel.findById(
               { _id: new ObjectId(userId) },
               { password: 0 },
             ),
@@ -99,19 +99,19 @@ export class userServices {
 
   async deleteUser(userId: string, password: string): Promise<IMessage> {
     try {
-      const userExists: IUser = await this.UserModel.findById(userId);
+      const user: IUser = await this.userModel.findById(userId);
 
-      if (userExists && userExists.deletedAt === '') {
+      if (user && user.deletedAt === '') {
         const isPasswordTrue: boolean = await authenticatePassword(
           password,
-          userExists.password,
+          user.password,
         );
         if (isPasswordTrue) {
-          userExists.deletedAt = createTimeStamp();
+          user.deletedAt = createTimeStamp();
 
-          await this.UserModel.updateOne(
+          await this.userModel.updateOne(
             { _id: new ObjectId(userId) },
-            { $set: userExists },
+            { $set: user },
           );
 
           return { message: SendResponse.USER_DELETED };

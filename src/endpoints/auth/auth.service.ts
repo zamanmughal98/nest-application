@@ -10,35 +10,35 @@ import { createTimeStamp, DatabaseNames, SendResponse } from 'src/utils/common';
 export class authServices {
   constructor(
     private jwtService: JwtService,
-    @InjectModel(DatabaseNames.USERS) private readonly UserModel: Model<IUser>,
+    @InjectModel(DatabaseNames.USERS) private readonly userModel: Model<IUser>,
   ) {}
 
   async userLogin(login: loginDto): Promise<ILoginData> {
     try {
       const { email, password } = login;
 
-      const userExists: IUser = await this.UserModel.findOne({
+      const user: IUser = await this.userModel.findOne({
         email,
         deletedAt: '',
       });
 
-      if (userExists) {
-        const { _id: UserId } = userExists;
+      if (user) {
+        const { _id: UserId } = user;
 
         const passwordMatch: boolean = await authenticatePassword(
           password,
-          userExists.password,
+          user.password,
         );
 
         if (passwordMatch) {
           const accessTokenPayload = {
             _id: UserId,
-            name: userExists.name,
-            address: userExists.address,
-            email: userExists.email,
-            createdAt: userExists.createdAt,
-            updatedAt: userExists.updatedAt,
-            deletedAt: userExists.deletedAt,
+            name: user.name,
+            address: user.address,
+            email: user.email,
+            createdAt: user.createdAt,
+            updatedAt: user.updatedAt,
+            deletedAt: user.deletedAt,
           };
 
           const accessToken: string = this.jwtService.sign(accessTokenPayload, {
@@ -56,8 +56,8 @@ export class authServices {
     try {
       const { name, address, email, password } = signup;
 
-      const userExists: IUser = await this.UserModel.findOne({ email });
-      if (!userExists) {
+      const user: IUser = await this.userModel.findOne({ email });
+      if (!user) {
         const hashedPassword: string = await hashPassword(password);
 
         const dataToWrite = {
@@ -69,7 +69,7 @@ export class authServices {
           updatedAt: '',
           deletedAt: '',
         };
-        const newUser: IUserSchmema = await this.UserModel.create(dataToWrite);
+        const newUser: IUserSchmema = await this.userModel.create(dataToWrite);
 
         return { data: newUser };
       } else return { message: SendResponse.USER_ALREADY_EXIST };

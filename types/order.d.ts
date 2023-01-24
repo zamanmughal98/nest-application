@@ -39,7 +39,7 @@ interface IOrderPaginationData extends IMessage {
   data?: IOrder[];
 }
 
-interface ProductsArray {
+interface IProductsArray {
   id: string;
   quantity: number;
 }

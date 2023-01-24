@@ -1,7 +1,9 @@
-import { IsNotEmpty, IsString } from 'class-validator';
+import { IsNotEmpty, IsString, Length } from 'class-validator';
+import { SendResponse } from 'src/utils/common';
 
 export class userIdDto {
-  @IsString() userId: string;
+  @Length(24, 24, { message: SendResponse.INVALID_ID_LENGTH })
+  userId: string;
 }
 
 export class updateUserDto {

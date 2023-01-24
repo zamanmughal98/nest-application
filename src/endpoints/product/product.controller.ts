@@ -11,55 +11,55 @@ import {
 } from '@nestjs/common';
 import { pageNoDto } from 'src/dto/common.dto';
 import {
-  paramProductIDDto,
+  productIdDto,
   postProductDto,
   updateProductDto,
 } from 'src/dto/product.dto';
-import { JwtAuthGuard } from 'src/lib/jwt.guard';
+import { jwtAuthGuard } from 'src/lib/jwt.guard';
 import { productServices } from './product.service';
 
 @Controller('/product')
 export class productController {
-  constructor(private readonly productService: productServices) {}
+  constructor(private readonly productServices: productServices) {}
 
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(jwtAuthGuard)
   @Get('/')
   getProduct(@Query() pageNo: pageNoDto): Promise<IProductPaginationData> {
     const { page } = pageNo;
-    return this.productService.getProduct(page);
+    return this.productServices.getProduct(page);
   }
 
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(jwtAuthGuard)
   @Get('/:productId')
   getProductById(
-    @Param() paramProductId: paramProductIDDto,
+    @Param() paramProductId: productIdDto,
   ): Promise<IPostProductData> {
     const { productId } = paramProductId;
-    return this.productService.getProductById(productId);
+    return this.productServices.getProductById(productId);
   }
 
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(jwtAuthGuard)
   @Post('/')
   createProduct(
     @Body() postProduct: postProductDto,
   ): Promise<IPostProductData> {
-    return this.productService.createProduct(postProduct);
+    return this.productServices.createProduct(postProduct);
   }
 
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(jwtAuthGuard)
   @Put('/:productId')
   updateProduct(
-    @Param() paramProductId: paramProductIDDto,
+    @Param() paramProductId: productIdDto,
     @Body() updateProduct: updateProductDto,
   ): Promise<IPostProductData> {
     const { productId } = paramProductId;
-    return this.productService.updateProduct(productId, updateProduct);
+    return this.productServices.updateProduct(productId, updateProduct);
   }
 
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(jwtAuthGuard)
   @Delete('/:productId')
-  deleteProduct(@Param() paramProductId: paramProductIDDto): Promise<IMessage> {
+  deleteProduct(@Param() paramProductId: productIdDto): Promise<IMessage> {
     const { productId } = paramProductId;
-    return this.productService.deleteProduct(productId);
+    return this.productServices.deleteProduct(productId);
   }
 }

@@ -42,6 +42,7 @@ export enum SendResponse {
   INVALID_USER_NEW_PASSWORD = 'User New password is not valid',
 
   INVALID_ORDER_ID = 'Order ID is not valid',
+  INVALID_ID_LENGTH = 'id length is not valid, should be 24 character long',
 }
 
 export enum OrderStatus {

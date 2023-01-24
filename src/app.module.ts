@@ -15,7 +15,5 @@ import { userModule } from './endpoints/user/user.module';
     MongooseModule.forRoot(process.env.MONGO_DB_URL),
     ConfigModule.forRoot(),
   ],
-  controllers: [],
-  providers: [],
 })
 export class AppModule {}
