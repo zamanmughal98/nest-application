@@ -20,7 +20,7 @@ export class userController {
 
   @UseGuards(jwtAuthGuard)
   @Get('/me')
-  getCrrentUser(@Request() request: ICrrentUser): Promise<ICurrentUserData> {
+  getCrrentUser(@Request() request: ICurrentUser): Promise<ICurrentUserData> {
     const { _id: userId } = request.user;
     return this.userServices.getUserById(userId);
   }

@@ -17,3 +17,8 @@ import { userModule } from './endpoints/user/user.module';
   ],
 })
 export class AppModule {}
+// implements NestModule {
+//   configure(consumer: MiddlewareConsumer) {
+//     consumer.apply(userValidater).forRoutes('user');
+//   }
+// }

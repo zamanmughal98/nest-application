@@ -30,12 +30,12 @@ interface IOrderSchema {
   updatedAt?: string;
   deletedAt?: string;
 }
-interface IPostOrderData extends IMessage {
-  data?: IOrderSchema;
+interface IPostOrderData {
+  data: IOrderSchema;
 }
 
-interface IOrderPaginationData extends IMessage {
-  data?: IOrder[];
+interface IOrderPaginationData {
+  data: IOrder[];
 }
 
 interface IProductsArray {

@@ -17,9 +17,9 @@ interface IProductSchema {
   deletedAt?: string;
 }
 
-interface IPostProductData extends IMessage {
-  data?: IProductSchema;
+interface IPostProductData {
+  data: IProductSchema;
 }
-interface IProductPaginationData extends IMessage {
-  data?: IProduct[];
+interface IProductPaginationData {
+  data: IProduct[];
 }

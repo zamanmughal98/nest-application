@@ -22,55 +22,53 @@ import { orderIdDto, postOrderDto } from 'src/dto/order.dto';
 @Controller('/orders')
 export class orderController {
   constructor(
-    private readonly orderService: orderServices,
-    private readonly userService: userServices,
+    private readonly orderServices: orderServices,
+    private readonly userServices: userServices,
   ) {}
 
   @UseGuards(jwtAuthGuard)
   @Get('/')
   getOrder(@Query() pageNo: pageNoDto): Promise<IOrderPaginationData> {
     const { page } = pageNo;
-    return this.orderService.getOrder(page);
+    return this.orderServices.getOrder(page);
   }
 
   @UseGuards(jwtAuthGuard)
   @Get('/:orderId')
   getOrderById(@Param() paramOrderID: orderIdDto): Promise<IPostOrderData> {
     const { orderId } = paramOrderID;
-    return this.orderService.getOrderById(orderId);
+    return this.orderServices.getOrderById(orderId);
   }
 
   @UseGuards(jwtAuthGuard)
   @Post('/')
   async createOrder(
     @Body() postOrder: postOrderDto,
-    @Request() request: ICrrentUser,
+    @Request() request: ICurrentUser,
   ): Promise<IPostOrderData> {
     const { _id: userId } = request.user;
     const { product: orderingProduct } = postOrder;
-    const { data } = (await this.userService.getUserById(
-      userId,
-    )) as ICurrentUserData;
+    const { data } = await this.userServices.getUserById(userId);
     if (!data._id)
       throw new HttpException(
         SendResponse.USER_MIGHT_DELETED,
         HttpStatus.FORBIDDEN,
       );
 
-    return this.orderService.createOrder(orderingProduct, userId);
+    return this.orderServices.createOrder(orderingProduct, userId);
   }
 
   @UseGuards(jwtAuthGuard)
   @Put('/:orderId')
   updateOrder(@Param() paramOrderID: orderIdDto): Promise<IPostOrderData> {
     const { orderId } = paramOrderID;
-    return this.orderService.updateOrder(orderId);
+    return this.orderServices.updateOrder(orderId);
   }
 
   @UseGuards(jwtAuthGuard)
   @Delete('/:orderId')
   deleteOrder(@Param() paramOrderID: orderIdDto): Promise<IMessage> {
     const { orderId } = paramOrderID;
-    return this.orderService.deleteOrder(orderId);
+    return this.orderServices.deleteOrder(orderId);
   }
 }
