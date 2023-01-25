@@ -3,7 +3,8 @@ import { Types } from 'mongoose';
 import { DatabaseNames, OrderStatus } from 'src/utils/common';
 import { products, PRODUCT_MODEL } from './product.schema';
 import { users, USERS_MODEL } from './user.schema';
-import { Document } from 'mongoose';
+
+
 @Schema()
 class userMapping {
   @Prop({
@@ -12,15 +13,6 @@ class userMapping {
     ref: USERS_MODEL,
   })
   userId: Types.ObjectId | string | users;
-
-  @Prop({
-    type: String,
-    required: true,
-    lowercase: true,
-    immutable: true,
-    ref: USERS_MODEL,
-  })
-  email: string;
 }
 const usertMappingSchema = SchemaFactory.createForClass(userMapping);
 
@@ -80,4 +72,3 @@ export class orders {
 }
 
 export const orderSchema = SchemaFactory.createForClass(orders);
-export type orderDocument = orders & Document;

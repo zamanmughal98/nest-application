@@ -7,11 +7,10 @@ interface IProductMapping {
 }
 interface IUserMapping {
   userId: ObjectId | string;
-  email: string;
 }
 
 interface IOrder {
-  User: IUserMapping[];
+  User: IUserMapping;
   Products: IProductMapping[];
   grandTotal: number;
   status: string;
@@ -23,7 +22,7 @@ interface IOrder {
 }
 
 interface IOrderSchema {
-  User: IUserMapping[];
+  User: IUserMapping;
   Products: IProductMapping[];
   grandTotal: number;
   status: string;

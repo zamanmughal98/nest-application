@@ -3,7 +3,6 @@ import { InjectModel } from '@nestjs/mongoose';
 import { ObjectId } from 'mongodb';
 import { Model } from 'mongoose';
 import { productServices } from 'src/endpoints/product/product.service';
-import { orderDocument } from 'src/schemas/order.schema';
 
 import {
   createTimeStamp,
@@ -16,11 +15,11 @@ import {
 export class orderServices {
   constructor(
     @InjectModel(DatabaseNames.ORDERS)
-    private readonly orderModel: Model<orderDocument>,
+    private readonly orderModel: Model<IOrder>,
     private productServices: productServices,
   ) {}
 
-  async getOrder(page: string) {
+  async getOrder(page: string): Promise<IOrderPaginationData> {
     try {
       // Pagination
       const recordPerPage = 2;
@@ -32,11 +31,11 @@ export class orderServices {
       );
 
       if (pageNo <= maxPages) {
-        const orders = await this.orderModel.find({
+        const orders: IOrder[] = await this.orderModel.find({
           deletedAt: '',
         });
 
-        const paginationRecords = orders.slice(
+        const paginationRecords: IOrder[] = orders.slice(
           skipRecords,
           skipRecords + recordPerPage,
         );
@@ -49,9 +48,9 @@ export class orderServices {
     }
   }
 
-  async getOrderById(orderId: string) {
+  async getOrderById(orderId: string): Promise<IPostOrderData> {
     try {
-      const order = await this.orderModel.findById({
+      const order: IOrder = await this.orderModel.findById({
         _id: new ObjectId(orderId),
       });
 
@@ -62,16 +61,22 @@ export class orderServices {
       throw new HttpException(error, 500);
     }
   }
-  async calculateProductsPrice(data: IProductsArray[]) {
+  async calculateProductsPrice(
+    data: IProductsArray[],
+  ): Promise<IProductMapping[]> {
     const productIdArray: string[] = data.map(({ id }) => id);
 
-    const products = await this.productServices.getManyProducts(productIdArray);
+    const products: IProduct[] = await this.productServices.getManyProducts(
+      productIdArray,
+    );
 
     return data
       .map((item) => {
         const id = new ObjectId(item.id);
 
-        const productDetails = products.find(({ _id: PID }) => PID.equals(id));
+        const productDetails: IProduct = products.find(({ _id: PID }) =>
+          PID.equals(id),
+        );
         if (productDetails) {
           return {
             productId: id,
@@ -88,12 +93,11 @@ export class orderServices {
 
   async createOrder(
     orderingProduct: IProductsArray[],
-    { userId, email }: IUserMapping,
-  ) {
+    userId: ObjectId,
+  ): Promise<IPostOrderData> {
     try {
-      const productsMapping = await this.calculateProductsPrice(
-        orderingProduct,
-      );
+      const productsMapping: IProductMapping[] =
+        await this.calculateProductsPrice(orderingProduct);
 
       if (productsMapping && productsMapping.length !== 0) {
         const grandTotal = productsMapping.reduce(
@@ -104,7 +108,6 @@ export class orderServices {
         const dataToWrite = {
           User: {
             userId: new ObjectId(userId),
-            email,
           },
           Products: productsMapping,
           grandTotal,
@@ -114,7 +117,9 @@ export class orderServices {
           deletedAt: '',
         };
 
-        const newOrder = await this.orderModel.create(dataToWrite);
+        const newOrder: IOrderSchema = await this.orderModel.create(
+          dataToWrite,
+        );
 
         return { data: newOrder };
       } else return { message: SendResponse.PRODUCT_NOT_FOUND };
@@ -123,9 +128,9 @@ export class orderServices {
     }
   }
 
-  async updateOrder(orderId: string) {
+  async updateOrder(orderId: string): Promise<IPostOrderData> {
     try {
-      const order = await this.orderModel.findById(orderId);
+      const order: IOrder = await this.orderModel.findById(orderId);
 
       if (order && order.deletedAt === '') {
         order.status = OrderStatus.SHIPPED;
@@ -142,9 +147,9 @@ export class orderServices {
     }
   }
 
-  async deleteOrder(orderId: string) {
+  async deleteOrder(orderId: string): Promise<IMessage> {
     try {
-      const order = await this.orderModel.findById(orderId);
+      const order: IOrder = await this.orderModel.findById(orderId);
 
       if (order && order.deletedAt === '') {
         order.deletedAt = createTimeStamp();

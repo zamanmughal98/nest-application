@@ -28,14 +28,14 @@ export class orderController {
 
   @UseGuards(jwtAuthGuard)
   @Get('/')
-  getOrder(@Query() pageNo: pageNoDto) {
+  getOrder(@Query() pageNo: pageNoDto): Promise<IOrderPaginationData> {
     const { page } = pageNo;
     return this.orderService.getOrder(page);
   }
 
   @UseGuards(jwtAuthGuard)
   @Get('/:orderId')
-  getOrderById(@Param() paramOrderID: orderIdDto) {
+  getOrderById(@Param() paramOrderID: orderIdDto): Promise<IPostOrderData> {
     const { orderId } = paramOrderID;
     return this.orderService.getOrderById(orderId);
   }
@@ -45,8 +45,8 @@ export class orderController {
   async createOrder(
     @Body() postOrder: postOrderDto,
     @Request() request: ICrrentUser,
-  ) {
-    const { _id: userId, email } = request.user;
+  ): Promise<IPostOrderData> {
+    const { _id: userId } = request.user;
     const { product: orderingProduct } = postOrder;
     const { data } = (await this.userService.getUserById(
       userId,
@@ -57,19 +57,19 @@ export class orderController {
         HttpStatus.FORBIDDEN,
       );
 
-    return this.orderService.createOrder(orderingProduct, { userId, email });
+    return this.orderService.createOrder(orderingProduct, userId);
   }
 
   @UseGuards(jwtAuthGuard)
   @Put('/:orderId')
-  updateOrder(@Param() paramOrderID: orderIdDto) {
+  updateOrder(@Param() paramOrderID: orderIdDto): Promise<IPostOrderData> {
     const { orderId } = paramOrderID;
     return this.orderService.updateOrder(orderId);
   }
 
   @UseGuards(jwtAuthGuard)
   @Delete('/:orderId')
-  deleteOrder(@Param() paramOrderID: orderIdDto) {
+  deleteOrder(@Param() paramOrderID: orderIdDto): Promise<IMessage> {
     const { orderId } = paramOrderID;
     return this.orderService.deleteOrder(orderId);
   }
