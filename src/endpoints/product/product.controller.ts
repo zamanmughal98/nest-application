@@ -16,14 +16,12 @@ import {
   updateProductDto,
 } from 'src/dto/product.dto';
 import { jwtAuthGuard } from 'src/endpoints/auth/guards/jwt.guard';
-import { userValidationGuard } from '../auth/guards/user-validation.guard';
 import { productServices } from './product.service';
 
 @Controller('/product')
 export class productController {
   constructor(private readonly productServices: productServices) {}
 
-  @UseGuards(userValidationGuard)
   @UseGuards(jwtAuthGuard)
   @Get('/')
   getProduct(@Query() pageNo: pageNoDto): Promise<IProductPaginationData> {
@@ -32,7 +30,6 @@ export class productController {
     return this.productServices.getProduct(page);
   }
 
-  @UseGuards(userValidationGuard)
   @UseGuards(jwtAuthGuard)
   @Get('/:productId')
   getProductById(
@@ -43,7 +40,6 @@ export class productController {
     return this.productServices.getProductById(productId);
   }
 
-  @UseGuards(userValidationGuard)
   @UseGuards(jwtAuthGuard)
   @Post('/')
   createProduct(
@@ -52,7 +48,6 @@ export class productController {
     return this.productServices.createProduct(postProduct);
   }
 
-  @UseGuards(userValidationGuard)
   @UseGuards(jwtAuthGuard)
   @Put('/:productId')
   updateProduct(
@@ -64,7 +59,6 @@ export class productController {
     return this.productServices.updateProduct(productId, updateProduct);
   }
 
-  @UseGuards(userValidationGuard)
   @UseGuards(jwtAuthGuard)
   @Delete('/:productId')
   deleteProduct(@Param() paramProductId: productIdDto): Promise<IMessage> {

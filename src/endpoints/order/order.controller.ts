@@ -14,13 +14,11 @@ import { jwtAuthGuard } from 'src/endpoints/auth/guards/jwt.guard';
 import { orderServices } from './order.service';
 import { pageNoDto } from 'src/dto/common.dto';
 import { orderIdDto, postOrderDto } from 'src/dto/order.dto';
-import { userValidationGuard } from 'src/endpoints/auth/guards/user-validation.guard';
 
 @Controller('/orders')
 export class orderController {
   constructor(private readonly orderServices: orderServices) {}
 
-  @UseGuards(userValidationGuard)
   @UseGuards(jwtAuthGuard)
   @Get('/')
   getOrder(@Query() pageNo: pageNoDto): Promise<IOrderPaginationData> {
@@ -29,7 +27,6 @@ export class orderController {
     return this.orderServices.getOrder(page);
   }
 
-  @UseGuards(userValidationGuard)
   @UseGuards(jwtAuthGuard)
   @Get('/:orderId')
   getOrderById(@Param() paramOrderID: orderIdDto): Promise<IPostOrderData> {
@@ -38,7 +35,6 @@ export class orderController {
     return this.orderServices.getOrderById(orderId);
   }
 
-  @UseGuards(userValidationGuard)
   @UseGuards(jwtAuthGuard)
   @Post('/')
   async createOrder(
@@ -51,7 +47,6 @@ export class orderController {
     return this.orderServices.createOrder(orderingProduct, userId);
   }
 
-  @UseGuards(userValidationGuard)
   @UseGuards(jwtAuthGuard)
   @Put('/:orderId')
   updateOrder(@Param() paramOrderID: orderIdDto): Promise<IPostOrderData> {
@@ -60,7 +55,6 @@ export class orderController {
     return this.orderServices.updateOrder(orderId);
   }
 
-  @UseGuards(userValidationGuard)
   @UseGuards(jwtAuthGuard)
   @Delete('/:orderId')
   deleteOrder(@Param() paramOrderID: orderIdDto): Promise<IMessage> {

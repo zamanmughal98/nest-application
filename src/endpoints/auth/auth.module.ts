@@ -7,9 +7,11 @@ import { DatabaseNames } from 'src/utils/common';
 import { jwtStrategy } from './guards/jwt.strategy';
 import { authController } from './auth.controller';
 import { authServices } from './auth.service';
+import { userModule } from '../user/user.module';
 
 @Module({
   imports: [
+    userModule,
     ConfigModule.forRoot(),
     JwtModule.register({ secret: process.env.ACCESS_TOKEN_SECRET }),
     MongooseModule.forFeature([

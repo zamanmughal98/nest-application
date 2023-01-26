@@ -12,14 +12,12 @@ import {
 import { pageNoDto } from 'src/dto/common.dto';
 import { updateUserDto, deleteUserDto, userIdDto } from 'src/dto/user.dto';
 import { jwtAuthGuard } from 'src/endpoints/auth/guards/jwt.guard';
-import { userValidationGuard } from 'src/endpoints/auth/guards/user-validation.guard';
 import { userServices } from './user.service';
 
 @Controller('')
 export class userController {
   constructor(private readonly userServices: userServices) {}
 
-  @UseGuards(userValidationGuard)
   @UseGuards(jwtAuthGuard)
   @Get('/me')
   getCrrentUser(@Request() request: ICurrentUser): Promise<ICurrentUserData> {
@@ -28,7 +26,6 @@ export class userController {
     return this.userServices.getUserById(userId);
   }
 
-  @UseGuards(userValidationGuard)
   @UseGuards(jwtAuthGuard)
   @Get('/')
   getUser(@Query() pageNo: pageNoDto): Promise<IUsersPaginationData> {
@@ -37,7 +34,6 @@ export class userController {
     return this.userServices.getUser(page);
   }
 
-  @UseGuards(userValidationGuard)
   @UseGuards(jwtAuthGuard)
   @Get('/:userId')
   getUserById(@Param() user: userIdDto): Promise<ICurrentUserData> {
@@ -46,7 +42,6 @@ export class userController {
     return this.userServices.getUserById(userId);
   }
 
-  @UseGuards(userValidationGuard)
   @UseGuards(jwtAuthGuard)
   @Put('/:userId')
   updateUser(
@@ -58,7 +53,6 @@ export class userController {
     return this.userServices.updateUser(userId, updateUser);
   }
 
-  @UseGuards(userValidationGuard)
   @UseGuards(jwtAuthGuard)
   @Delete('/:userId')
   deleteUser(
