@@ -18,13 +18,15 @@ export class userServices {
   ) {}
 
   async getUser(page: string): Promise<IUsersPaginationData> {
-    // Pagination
     const recordPerPage = 2;
     const pageNo: number = parseInt(page, 10) || 1;
     const skipRecords: number = recordPerPage * (pageNo - 1);
+
     const maxPages: number = Math.ceil(
       (await this.userModel.countDocuments({ deletedAt: '' })) / recordPerPage,
     );
+    if (maxPages === 0)
+      throw new NotFoundException(SendResponse.USER_NOT_FOUND);
 
     if (pageNo <= maxPages) {
       const users: IUser[] = await this.userModel.find(
@@ -37,12 +39,18 @@ export class userServices {
         skipRecords + recordPerPage,
       );
 
-      if (paginationRecords) return { data: paginationRecords };
-      else throw new NotFoundException(SendResponse.USER_NOT_FOUND);
+      return { data: paginationRecords };
     } else throw new BadRequestException(SendResponse.PAGE_LIMIT_ERROR);
   }
 
-  async getUserById(userId: string): Promise<ICurrentUserData> {
+  async getUserById(
+    userId: string,
+    errorMessage?: string,
+  ): Promise<ICurrentUserData> {
+    const throwErrorMessage: string = errorMessage
+      ? errorMessage
+      : SendResponse.USER_NOT_FOUND;
+
     const user: IUser = await this.userModel.findById(
       { _id: new ObjectId(userId) },
       { password: 0 },
@@ -50,44 +58,43 @@ export class userServices {
 
     if (user && user.deletedAt === '') {
       return { data: user };
-    } else throw new NotFoundException(SendResponse.USER_NOT_FOUND);
+    } else throw new NotFoundException(throwErrorMessage);
   }
 
   async updateUser(
     userId: string,
     updateUser: updateUserDto,
   ): Promise<ICurrentUserData> {
-      const user: IUser = await this.userModel.findById(userId);
+    const user: IUser = await this.userModel.findById(userId);
 
-      if (user && user.deletedAt === '') {
-        const { name, address, oldPassword, newPassword } = updateUser;
+    if (user && user.deletedAt === '') {
+      const { name, address, oldPassword, newPassword } = updateUser;
 
-        const isPasswordTrue: boolean = await authenticatePassword(
-          oldPassword,
-          user.password,
+      const isPasswordTrue: boolean = await authenticatePassword(
+        oldPassword,
+        user.password,
+      );
+
+      if (isPasswordTrue) {
+        const newHashedPassword = await hashPassword(newPassword);
+        user.name = name;
+        user.address = address;
+        user.password = newHashedPassword;
+        user.updatedAt = createTimeStamp();
+
+        await this.userModel.updateOne(
+          { _id: new ObjectId(userId) },
+          { $set: user },
         );
 
-        if (isPasswordTrue) {
-          const newHashedPassword = await hashPassword(newPassword);
-          user.name = name;
-          user.address = address;
-          user.password = newHashedPassword;
-          user.updatedAt = createTimeStamp();
-
-          await this.userModel.updateOne(
+        return {
+          data: await this.userModel.findById(
             { _id: new ObjectId(userId) },
-            { $set: user },
-          );
-
-          return {
-            data: await this.userModel.findById(
-              { _id: new ObjectId(userId) },
-              { password: 0 },
-            ),
-          };
-        } else throw new UnauthorizedException(SendResponse.WRONG_PASSWORD);
-      } else throw new NotFoundException(SendResponse.USER_NOT_FOUND);
-   
+            { password: 0 },
+          ),
+        };
+      } else throw new UnauthorizedException(SendResponse.WRONG_PASSWORD);
+    } else throw new NotFoundException(SendResponse.USER_NOT_FOUND);
   }
 
   async deleteUser(userId: string, password: string): Promise<IMessage> {

@@ -8,8 +8,8 @@ import { userModule } from './endpoints/user/user.module';
 
 @Module({
   imports: [
-    productModule,
     orderModule,
+    productModule,
     authModule,
     userModule,
     MongooseModule.forRoot(process.env.MONGO_DB_URL),
@@ -17,8 +17,3 @@ import { userModule } from './endpoints/user/user.module';
   ],
 })
 export class AppModule {}
-// implements NestModule {
-//   configure(consumer: MiddlewareConsumer) {
-//     consumer.apply(userValidater).forRoutes('user');
-//   }
-// }

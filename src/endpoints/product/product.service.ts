@@ -27,14 +27,17 @@ export class productServices {
   }
 
   async getProduct(page: string): Promise<IProductPaginationData> {
-    // Pagination
     const recordPerPage = 2;
     const pageNo: number = parseInt(page, 10) || 1;
     const skipRecords: number = recordPerPage * (pageNo - 1);
+
     const maxPages: number = Math.ceil(
       (await this.productModel.countDocuments({ deletedAt: '' })) /
         recordPerPage,
     );
+
+    if (maxPages === 0)
+      throw new NotFoundException(SendResponse.PRODUCT_NOT_FOUND);
 
     if (pageNo <= maxPages) {
       const products: IProduct[] = await this.productModel.find({
@@ -46,8 +49,7 @@ export class productServices {
         skipRecords + recordPerPage,
       );
 
-      if (paginationRecords) return { data: paginationRecords };
-      else throw new NotFoundException(SendResponse.PRODUCT_NOT_FOUND);
+      return { data: paginationRecords };
     } else throw new BadRequestException(SendResponse.PAGE_LIMIT_ERROR);
   }
 

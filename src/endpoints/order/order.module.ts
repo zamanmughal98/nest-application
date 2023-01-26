@@ -11,8 +11,8 @@ import { orderServices } from './order.service';
 @Module({
   imports: [
     ConfigModule.forRoot(),
-    userModule,
     productModule,
+    userModule,
     MongooseModule.forFeature([
       { name: DatabaseNames.ORDERS, schema: orderSchema },
     ]),

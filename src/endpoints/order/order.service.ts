@@ -24,13 +24,15 @@ export class orderServices {
   ) {}
 
   async getOrder(page: string): Promise<IOrderPaginationData> {
-    // Pagination
     const recordPerPage = 2;
     const pageNo: number = parseInt(page, 10) || 1;
     const skipRecords: number = recordPerPage * (pageNo - 1);
+
     const maxPages: number = Math.ceil(
       (await this.orderModel.countDocuments({ deletedAt: '' })) / recordPerPage,
     );
+    if (maxPages === 0)
+      throw new NotFoundException(SendResponse.ORDER_NOT_FOUND);
 
     if (pageNo <= maxPages) {
       const orders: IOrder[] = await this.orderModel.find({
@@ -42,8 +44,7 @@ export class orderServices {
         skipRecords + recordPerPage,
       );
 
-      if (paginationRecords) return { data: paginationRecords };
-      else throw new NotFoundException(SendResponse.ORDER_NOT_FOUND);
+      return { data: paginationRecords };
     } else throw new BadRequestException(SendResponse.PAGE_LIMIT_ERROR);
   }
 
