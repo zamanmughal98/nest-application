@@ -35,14 +35,10 @@ export class orderServices {
       throw new NotFoundException(SendResponse.ORDER_NOT_FOUND);
 
     if (pageNo <= maxPages) {
-      const orders: IOrder[] = await this.orderModel.find({
-        deletedAt: '',
-      });
-
-      const paginationRecords: IOrder[] = orders.slice(
-        skipRecords,
-        skipRecords + recordPerPage,
-      );
+      const paginationRecords: IOrder[] = await this.orderModel
+        .find({ deletedAt: '' })
+        .skip(skipRecords)
+        .limit(recordPerPage);
 
       return { data: paginationRecords };
     } else throw new BadRequestException(SendResponse.PAGE_LIMIT_ERROR);

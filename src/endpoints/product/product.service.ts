@@ -40,14 +40,10 @@ export class productServices {
       throw new NotFoundException(SendResponse.PRODUCT_NOT_FOUND);
 
     if (pageNo <= maxPages) {
-      const products: IProduct[] = await this.productModel.find({
-        deletedAt: '',
-      });
-
-      const paginationRecords: IProduct[] = products.slice(
-        skipRecords,
-        skipRecords + recordPerPage,
-      );
+      const paginationRecords: IProduct[] = await this.productModel
+        .find({ deletedAt: '' })
+        .skip(skipRecords)
+        .limit(recordPerPage);
 
       return { data: paginationRecords };
     } else throw new BadRequestException(SendResponse.PAGE_LIMIT_ERROR);

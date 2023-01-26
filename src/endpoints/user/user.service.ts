@@ -29,15 +29,10 @@ export class userServices {
       throw new NotFoundException(SendResponse.USER_NOT_FOUND);
 
     if (pageNo <= maxPages) {
-      const users: IUser[] = await this.userModel.find(
-        { deletedAt: '' },
-        { password: 0 },
-      );
-
-      const paginationRecords: IUser[] = users.slice(
-        skipRecords,
-        skipRecords + recordPerPage,
-      );
+      const paginationRecords: IUser[] = await this.userModel
+        .find({ deletedAt: '' })
+        .skip(skipRecords)
+        .limit(recordPerPage);
 
       return { data: paginationRecords };
     } else throw new BadRequestException(SendResponse.PAGE_LIMIT_ERROR);
