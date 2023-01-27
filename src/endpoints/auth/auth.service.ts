@@ -1,34 +1,31 @@
 import {
   ConflictException,
-  HttpException,
-  HttpStatus,
   Injectable,
   NotFoundException,
   UnauthorizedException,
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
-import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
 import { loginDto, signupDto } from 'src/dto/auth.dto';
-import { authenticatePassword, hashPassword } from 'src/utils/authentication';
-import { createTimeStamp, DatabaseNames, SendResponse } from 'src/utils/common';
+import {
+  authenticatePassword,
+  hashPassword,
+} from 'src/endpoints/auth/guards/authentication';
+import { createTimeStamp, SendResponse } from 'src/utils/common';
+import { userServices } from '../user/user.service';
 
 @Injectable()
 export class authServices {
   constructor(
     private jwtService: JwtService,
-    @InjectModel(DatabaseNames.USERS) private readonly userModel: Model<IUser>,
+    private readonly userServices: userServices,
   ) {}
 
   async userLogin(login: loginDto): Promise<ILoginData> {
     const { email, password } = login;
 
-    const user: IUser = await this.userModel.findOne({
-      email,
-      deletedAt: '',
-    });
+    const user: IUser = await this.userServices.getUserByEmail(email);
 
-    if (user) {
+    if (user && user.deletedAt === '') {
       const { _id: UserId } = user;
 
       const passwordMatch: boolean = await authenticatePassword(
@@ -58,11 +55,11 @@ export class authServices {
   async userSignup(signup: signupDto): Promise<ISignupData> {
     const { name, address, email, password } = signup;
 
-    const user: IUser = await this.userModel.findOne({ email });
+    const user: IUser = await this.userServices.getUserByEmail(email);
     if (!user) {
       const hashedPassword: string = await hashPassword(password);
 
-      const dataToWrite = {
+      const dataToWrite: IUserSchmema = {
         name,
         address,
         email,
@@ -71,7 +68,9 @@ export class authServices {
         updatedAt: '',
         deletedAt: '',
       };
-      const newUser: IUserSchmema = await this.userModel.create(dataToWrite);
+      const newUser: IUserSchmema = await this.userServices.createUser(
+        dataToWrite,
+      );
 
       return { data: newUser };
     } else throw new ConflictException(SendResponse.USER_ALREADY_EXIST);

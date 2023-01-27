@@ -1,3 +1,3 @@
 interface IMessage {
-  message?: SendResponse;
+  message: SendResponse;
 }

@@ -101,7 +101,7 @@ export class orderServices {
           userId: new ObjectId(userId),
         },
         Products: productsMapping,
-        grandTotal,
+        grandTotal: grandTotal.toFixed(2),
         status: OrderStatus.PENDING,
         createdAt: createTimeStamp(),
         updatedAt: '',

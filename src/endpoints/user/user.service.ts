@@ -2,13 +2,16 @@ import {
   BadRequestException,
   Injectable,
   NotFoundException,
-  UnauthorizedException,
+  UnauthorizedException
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { ObjectId } from 'mongodb';
 import { Model } from 'mongoose';
 import { updateUserDto } from 'src/dto/user.dto';
-import { authenticatePassword, hashPassword } from 'src/utils/authentication';
+import {
+  authenticatePassword,
+  hashPassword
+} from 'src/endpoints/auth/guards/authentication';
 import { createTimeStamp, DatabaseNames, SendResponse } from 'src/utils/common';
 
 @Injectable()
@@ -16,6 +19,11 @@ export class userServices {
   constructor(
     @InjectModel(DatabaseNames.USERS) private readonly userModel: Model<IUser>,
   ) {}
+
+  async createUser(userData: IUserSchmema): Promise<IUserSchmema> {
+    const newUser: IUserSchmema = await this.userModel.create(userData);
+    return newUser;
+  }
 
   async getUser(page: string): Promise<IUsersPaginationData> {
     const recordPerPage = 2;
@@ -54,6 +62,11 @@ export class userServices {
     if (user && user.deletedAt === '') {
       return { data: user };
     } else throw new NotFoundException(throwErrorMessage);
+  }
+
+  async getUserByEmail(userEmail: string): Promise<IUser> {
+    const user: IUser = await this.userModel.findOne({ email: userEmail });
+    return user;
   }
 
   async updateUser(
