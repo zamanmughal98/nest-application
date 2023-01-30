@@ -5,8 +5,10 @@ import {
   IsNumber,
   Min,
   Max,
+  Length,
 } from 'class-validator';
 import { Type } from 'class-transformer';
+import { SendResponse } from 'src/utils/common';
 
 export class productsArrayDto {
   @IsString()
@@ -23,7 +25,7 @@ export class postOrderDto {
   @Type(() => productsArrayDto)
   product: productsArrayDto[];
 }
-export class paramOrderIDDto {
-  @IsString()
+export class orderIdDto {
+  @Length(24, 24, { message: SendResponse.INVALID_ID_LENGTH })
   orderId: string;
 }

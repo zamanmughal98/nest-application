@@ -7,11 +7,10 @@ interface IProductMapping {
 }
 interface IUserMapping {
   userId: ObjectId | string;
-  email: string;
 }
 
 interface IOrder {
-  User: IUserMapping[];
+  User: IUserMapping;
   Products: IProductMapping[];
   grandTotal: number;
   status: string;
@@ -23,7 +22,7 @@ interface IOrder {
 }
 
 interface IOrderSchema {
-  User: IUserMapping[];
+  User: IUserMapping;
   Products: IProductMapping[];
   grandTotal: number;
   status: string;
@@ -31,16 +30,15 @@ interface IOrderSchema {
   updatedAt?: string;
   deletedAt?: string;
 }
-interface IPostOrderData extends IMessage {
-  data?: IOrderSchema;
+interface IPostOrderData {
+  data: IOrderSchema;
 }
 
-interface IGetOrdersData extends IMessage {
-  Pagination?: IOrder[];
-  Orders?: IOrder[];
+interface IOrderPaginationData {
+  data: IOrder[];
 }
 
-interface ProductsArray {
+interface IProductsArray {
   id: string;
   quantity: number;
 }

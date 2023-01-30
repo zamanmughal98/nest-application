@@ -1,80 +1,78 @@
-import { Injectable } from '@nestjs/common';
+import {
+  ConflictException,
+  Injectable,
+  NotFoundException,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
-import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
 import { loginDto, signupDto } from 'src/dto/auth.dto';
-import { authenticatePassword, hashPassword } from 'src/utils/authentication';
-import { createTimeStamp, DatabaseNames, SendResponse } from 'src/utils/common';
+import {
+  authenticatePassword,
+  hashPassword,
+} from 'src/endpoints/auth/guards/authentication';
+import { createTimeStamp, SendResponse } from 'src/utils/common';
+import { userServices } from '../user/user.service';
 
 @Injectable()
 export class authServices {
   constructor(
     private jwtService: JwtService,
-    @InjectModel(DatabaseNames.USERS) private readonly UserModel: Model<IUser>,
+    private readonly userServices: userServices,
   ) {}
 
   async userLogin(login: loginDto): Promise<ILoginData> {
-    try {
-      const { email, password } = login;
+    const { email, password } = login;
 
-      const userExists: IUser = await this.UserModel.findOne({
-        email,
-        deletedAt: '',
-      });
+    const user: IUser = await this.userServices.getUserByEmail(email);
 
-      if (userExists) {
-        const { _id: UserId } = userExists;
+    if (user && user.deletedAt === '') {
+      const { _id: UserId } = user;
 
-        const checkPassword: boolean = await authenticatePassword(
-          password,
-          userExists.password,
-        );
+      const passwordMatch: boolean = await authenticatePassword(
+        password,
+        user.password,
+      );
 
-        if (checkPassword) {
-          const accessTokenPayload = {
-            _id: UserId,
-            name: userExists.name,
-            address: userExists.address,
-            email: userExists.email,
-            createdAt: userExists.createdAt,
-            updatedAt: userExists.updatedAt,
-            deletedAt: userExists.deletedAt,
-          };
+      if (passwordMatch) {
+        const accessTokenPayload = {
+          _id: UserId,
+          name: user.name,
+          address: user.address,
+          email: user.email,
+          createdAt: user.createdAt,
+          updatedAt: user.updatedAt,
+          deletedAt: user.deletedAt,
+        };
 
-          const accessToken: string = this.jwtService.sign(accessTokenPayload, {
-            expiresIn: '1h',
-          });
-          return { accessToken };
-        } else return { message: SendResponse.WRONG_PASSWORD };
-      } else return { message: SendResponse.USER_NOT_FOUND };
-    } catch (error) {
-      throw new Error(error.message);
-    }
+        const accessToken: string = this.jwtService.sign(accessTokenPayload, {
+          expiresIn: '5h',
+        });
+        return { accessToken };
+      } else throw new UnauthorizedException(SendResponse.WRONG_PASSWORD);
+    } else throw new NotFoundException(SendResponse.USER_NOT_FOUND);
   }
 
   async userSignup(signup: signupDto): Promise<ISignupData> {
-    try {
-      const { name, address, email, password } = signup;
+    const { name, address, email, password } = signup;
 
-      const userExists: IUser = await this.UserModel.findOne({ email });
-      if (!userExists) {
-        const hashedPassword: string = await hashPassword(password);
+    const user: IUser = await this.userServices.getUserByEmail(email);
+    if (!user) {
+      const hashedPassword: string = await hashPassword(password);
 
-        const dataToWrite = {
-          name,
-          address,
-          email,
-          password: hashedPassword,
-          createdAt: createTimeStamp(),
-          updatedAt: '',
-          deletedAt: '',
-        };
-        const newUser: IUserSchmema = await this.UserModel.create(dataToWrite);
+      const dataToWrite: IUserSchmema = {
+        name,
+        address,
+        email,
+        password: hashedPassword,
+        createdAt: createTimeStamp(),
+        updatedAt: '',
+        deletedAt: '',
+      };
+      const newUser: IUserSchmema = await this.userServices.createUser(
+        dataToWrite,
+      );
 
-        return { data: newUser };
-      } else return { message: SendResponse.USER_ALREADY_EXIST };
-    } catch (error) {
-      throw new Error(error.message);
-    }
+      return { data: newUser };
+    } else throw new ConflictException(SendResponse.USER_ALREADY_EXIST);
   }
 }

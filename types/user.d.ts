@@ -19,15 +19,14 @@ interface IUserSchmema {
   deletedAt?: string;
 }
 
-interface IAllUsersData extends IMessage {
-  Pagination?: IUser[];
-  Users?: IUser[];
+interface IUsersPaginationData {
+  data: IUser[];
 }
-interface ICurrentUserData extends IMessage {
-  data?: IUser;
+interface ICurrentUserData {
+  data: IUser;
 }
 
-interface ICrrentUser extends Express.Request {
+interface ICurrentUser extends Express.Request {
   user?: {
     _id?: ObjectId;
     name?: string;

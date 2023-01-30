@@ -3,8 +3,6 @@ import {
   Controller,
   Delete,
   Get,
-  HttpException,
-  HttpStatus,
   Param,
   Post,
   Put,
@@ -12,67 +10,56 @@ import {
   Request,
   UseGuards,
 } from '@nestjs/common';
-import { JwtAuthGuard } from 'src/lib/jwt.guard';
-import { userServices } from 'src/endpoints/user/user.service';
-import { SendResponse } from 'src/utils/common';
+import { jwtAuthGuard } from 'src/endpoints/auth/guards/jwt.guard';
 import { orderServices } from './order.service';
 import { pageNoDto } from 'src/dto/common.dto';
-import { paramOrderIDDto, postOrderDto } from 'src/dto/order.dto';
+import { orderIdDto, postOrderDto } from 'src/dto/order.dto';
 
 @Controller('/orders')
 export class orderController {
-  constructor(
-    private readonly orderService: orderServices,
-    private readonly userService: userServices,
-  ) {}
+  constructor(private readonly orderServices: orderServices) {}
 
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(jwtAuthGuard)
   @Get('/')
-  getOrder(@Query() pageNo: pageNoDto): Promise<IGetOrdersData> {
+  getOrder(@Query() pageNo: pageNoDto): Promise<IOrderPaginationData> {
     const { page } = pageNo;
-    return this.orderService.getOrder(page);
+
+    return this.orderServices.getOrder(page);
   }
 
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(jwtAuthGuard)
   @Get('/:orderId')
-  getOrderById(
-    @Param() paramOrderID: paramOrderIDDto,
-  ): Promise<IPostOrderData> {
+  getOrderById(@Param() paramOrderID: orderIdDto): Promise<IPostOrderData> {
     const { orderId } = paramOrderID;
-    return this.orderService.getOrderById(orderId);
+
+    return this.orderServices.getOrderById(orderId);
   }
 
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(jwtAuthGuard)
   @Post('/')
   async createOrder(
     @Body() postOrder: postOrderDto,
-    @Request() request: ICrrentUser,
+    @Request() request: ICurrentUser,
   ): Promise<IPostOrderData> {
-    const { _id: userId, email } = request.user;
+    const { _id: userId } = request.user;
     const { product: orderingProduct } = postOrder;
-    const { data } = (await this.userService.getUserById(
-      userId,
-    )) as ICurrentUserData;
-    if (!data._id)
-      throw new HttpException(
-        SendResponse.USER_MIGHT_DELETED,
-        HttpStatus.FORBIDDEN,
-      );
 
-    return this.orderService.createOrder(orderingProduct, { userId, email });
+    return this.orderServices.createOrder(orderingProduct, userId);
   }
 
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(jwtAuthGuard)
   @Put('/:orderId')
-  updateOrder(@Param() paramOrderID: paramOrderIDDto): Promise<IPostOrderData> {
+  updateOrder(@Param() paramOrderID: orderIdDto): Promise<IPostOrderData> {
     const { orderId } = paramOrderID;
-    return this.orderService.updateOrder(orderId);
+
+    return this.orderServices.updateOrder(orderId);
   }
 
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(jwtAuthGuard)
   @Delete('/:orderId')
-  deleteOrder(@Param() paramOrderID: paramOrderIDDto): Promise<IMessage> {
+  deleteOrder(@Param() paramOrderID: orderIdDto): Promise<IMessage> {
     const { orderId } = paramOrderID;
-    return this.orderService.deleteOrder(orderId);
+
+    return this.orderServices.deleteOrder(orderId);
   }
 }

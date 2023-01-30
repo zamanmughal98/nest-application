@@ -11,45 +11,49 @@ import {
 } from '@nestjs/common';
 import { pageNoDto } from 'src/dto/common.dto';
 import { updateUserDto, deleteUserDto, userIdDto } from 'src/dto/user.dto';
-import { JwtAuthGuard } from 'src/lib/jwt.guard';
+import { jwtAuthGuard } from 'src/endpoints/auth/guards/jwt.guard';
 import { userServices } from './user.service';
 
 @Controller('')
 export class userController {
   constructor(private readonly userServices: userServices) {}
 
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(jwtAuthGuard)
   @Get('/me')
-  getCrrentUser(@Request() request: ICrrentUser): Promise<ICurrentUserData> {
+  getCrrentUser(@Request() request: ICurrentUser): Promise<ICurrentUserData> {
     const { _id: userId } = request.user;
+
     return this.userServices.getUserById(userId);
   }
 
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(jwtAuthGuard)
   @Get('/')
-  getUser(@Query() pageNo: pageNoDto): Promise<IAllUsersData> {
+  getUser(@Query() pageNo: pageNoDto): Promise<IUsersPaginationData> {
     const { page } = pageNo;
+
     return this.userServices.getUser(page);
   }
 
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(jwtAuthGuard)
   @Get('/:userId')
   getUserById(@Param() user: userIdDto): Promise<ICurrentUserData> {
     const { userId } = user;
+
     return this.userServices.getUserById(userId);
   }
 
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(jwtAuthGuard)
   @Put('/:userId')
   updateUser(
     @Param() user: userIdDto,
     @Body() updateUser: updateUserDto,
   ): Promise<ICurrentUserData> {
     const { userId } = user;
+
     return this.userServices.updateUser(userId, updateUser);
   }
 
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(jwtAuthGuard)
   @Delete('/:userId')
   deleteUser(
     @Param() user: userIdDto,

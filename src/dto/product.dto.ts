@@ -1,7 +1,8 @@
-import { IsNotEmpty, IsString, IsNumber, Min } from 'class-validator';
+import { IsNotEmpty, IsString, IsNumber, Min, Length } from 'class-validator';
+import { SendResponse } from 'src/utils/common';
 
-export class paramProductIDDto {
-  @IsString()
+export class productIdDto {
+  @Length(24, 24, { message: SendResponse.INVALID_ID_LENGTH })
   productId: string;
 }
 

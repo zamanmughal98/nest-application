@@ -8,14 +8,12 @@ import { userModule } from './endpoints/user/user.module';
 
 @Module({
   imports: [
-    productModule,
     orderModule,
+    productModule,
     authModule,
     userModule,
     MongooseModule.forRoot(process.env.MONGO_DB_URL),
     ConfigModule.forRoot(),
   ],
-  controllers: [],
-  providers: [],
 })
 export class AppModule {}
